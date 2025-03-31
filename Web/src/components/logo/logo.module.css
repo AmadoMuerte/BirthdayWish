@@ -9,6 +9,10 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  -webkit-user-select: none; /* Chrome/Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+  user-select: none;
 }
 
 .logo-icon {
