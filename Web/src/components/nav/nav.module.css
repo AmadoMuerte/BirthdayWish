@@ -1,3 +1,26 @@
-.nav {
-    
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.nav ul {
+    list-style-type: none;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    position: relative;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.nav a:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
 }

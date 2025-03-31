@@ -1,6 +1,19 @@
 .header {
+    background: rgba(15, 12, 41, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
+}
+
+.headerInner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }

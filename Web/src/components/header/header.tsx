@@ -6,8 +6,12 @@ export default function Header() {
 
     return (
         <header className={styles.header}>
-            <Logo />
-            <Nav />
+            <div className='container'>
+                <div className={styles.headerInner}>
+                    <Logo />
+                    <Nav />
+                </div>
+            </div>
         </header>
     )
 }

@@ -4,7 +4,7 @@ export default function Logo() {
 
     return (
         <div className={styles.logo}>
-            LOGO
+            BirthdayWish
         </div>
     )
 }
