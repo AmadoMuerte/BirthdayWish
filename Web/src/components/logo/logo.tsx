@@ -1,10 +1,11 @@
+import { Link } from "@tanstack/react-router"
 import styles from "./logo.module.css"
 
 export default function Logo() {
 
     return (
-        <div className={styles.logo}>
+        <Link to="/" className={styles.logo}>
             BirthdayWish
-        </div>
+        </Link>
     )
 }

@@ -357,6 +357,8 @@ template {
 
 :root {
   --space-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  --primary: #6a11cb;
+  --secondary: #2575fc;
 }
 
 body {

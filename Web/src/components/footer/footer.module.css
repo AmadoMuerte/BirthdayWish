@@ -1,3 +1,23 @@
 .footer {
-    
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.1rem 0;
+}
+
+.footerInner {
+    display: flex;
+    justify-content: space-between;
+}
+
+.creator a {
+    color: var(--secondary);
+    text-decoration: none;
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.copyright a {
+    color: #fff;
 }
