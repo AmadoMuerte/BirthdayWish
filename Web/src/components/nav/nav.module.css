@@ -14,17 +14,29 @@ a {
 }
 
 .nav a {
+    font-family: "Work Sans", sans-serif;
+    font-weight: 500;
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
     font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
     transition: all 0.3s ease;
-    position: relative;
-    background: rgba(255, 255, 255, 0.1);
+    display: block;
+    text-align: center;
 }
 
 .nav a:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.2);
+    color: var(--primary);
+}
+
+.navItem {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    height: 35px;
+}
+
+.navItem img {
+    width: 35px;
+    height: 100%;
+    filter: drop-shadow(0 0 5px rgba(106, 17, 203, 0.7));
 }

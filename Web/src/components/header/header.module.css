@@ -1,13 +1,22 @@
 .header {
-    background: rgba(15, 12, 41, 0.5);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.2rem 0;
+    margin-top: 2rem;
+    z-index: 100;
 }
 
 .headerInner {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    backdrop-filter: blur(20px);
+    outline-offset: 0px;
+    -webkit-text-fill-color: inherit;
+    background-image: linear-gradient(#20243d66, #20243d66);
+    background-clip: border-box;
+    border: 1px #0000;
+    border-radius: 16px;
+    padding: 0 2rem;
+    height: auto;
+    min-height: 4.5rem;
+    max-width: 900px;
+    margin: 0 auto;
 }

@@ -1,10 +1,15 @@
 [
     {
-        "path": "/",
-        "name":"Home"
+        "path": "/#features",
+        "name":"Features"
+    },
+    {
+        "path": "/#pricing",
+        "name":"Pricing"
     },
     {
         "path": "/login",
-        "name":"Login"
+        "name":"Login",
+        "icon": "login.svg"
     }
 ]
