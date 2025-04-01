@@ -48,6 +48,10 @@
     background: rgba(255, 255, 255, 0.15);
 }
 
+.formInner button {
+    margin-top: 1rem;
+}
+
 .links {
     display: flex;
     justify-content: space-between;

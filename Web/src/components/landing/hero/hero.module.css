@@ -1,0 +1,51 @@
+.hero {
+
+}
+
+.heroInner {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.heroInner .heroText {
+    width: 65%;
+}
+
+.heroInner h1 {
+    font-size:  4rem;
+    line-height: 65px;
+    margin: 0;
+}
+
+.heroInner .heroText p {
+    font-size: 1.4rem;
+    line-height: 25px;
+    color: var(--primary);
+    margin-top: 20px;
+}
+
+.heroForm {
+    display: flex;
+    justify-content: center;
+}
+
+.heroForm div {
+    margin-top: 100px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    width: 70%;
+}
+
+.heroForm button {
+    width: 200px;
+    font-size: 1.3rem;
+}
+
+.heroForm p {
+    font-size: 1.1rem;
+    text-align: left;
+    color: rgb(218, 218, 218);
+}

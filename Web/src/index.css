@@ -352,6 +352,8 @@ template {
 * {
   font-family: "Kanit", sans-serif;
   font-size: 16px;
+  margin: 0;
+  padding: 0;
 }
 
 :root {
@@ -384,12 +386,16 @@ body {
   padding: 0 1rem;
 }
 
+section {
+  margin: 80px 0;
+}
+
 .loginPage {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 80dvh;
+  height: 70dvh;
   -webkit-user-select: none; /* Chrome/Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE/Edge */
