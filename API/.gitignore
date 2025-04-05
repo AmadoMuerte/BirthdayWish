@@ -1,0 +1,30 @@
+
+# Output of the go coverage tool
+*.out
+
+# Dependency directories
+vendor/
+bin/
+pkg/
+
+# Go workspace file
+go.work
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment files
+.env
+
+# Build output
+dist/
+
+# Debug files
+debug
+
+# OS-specific files
+.DS_Store
+Thumbs.db
