@@ -23,8 +23,8 @@ export default function Features() {
     return (
         <section id="features" className={styles.features}>
             <div className="container">
+                <h2 className='sectionTitle'>Features</h2>
                 <div className={styles.featresInner}>
-                    <h2 className='sectionTitle'>Features</h2>
                     <div className={styles.featuresList}>
                         {features.map((feature, index) => (
                             <div key={index} className={styles.feature}>
