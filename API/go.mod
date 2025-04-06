@@ -3,6 +3,9 @@ module github.com/AmadoMuerte/BirthdayWish/API
 go 1.24.2
 
 require (
+	github.com/ajg/form v1.5.1 // indirect
+	github.com/go-chi/chi/v5 v5.2.1 // indirect
+	github.com/go-chi/render v1.0.3 // indirect
 	github.com/go-pg/zerochecker v0.2.0 // indirect
 	github.com/golang-migrate/migrate/v4 v4.18.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/server"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
 )
 
@@ -14,6 +15,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	server := server.New(cfg, storage)
+	server.Start()
 
 	defer storage.Close()
 }

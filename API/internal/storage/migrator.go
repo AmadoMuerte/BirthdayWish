@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -25,16 +26,27 @@ func ApplyMigrations(db *sql.DB, dbName string) error {
 		return fmt.Errorf("could not create migrate instance: %w", err)
 	}
 
-	err = m.Up()
-	if err != nil && err != migrate.ErrNoChange {
-		return fmt.Errorf("could not apply migrations: %w", err)
-	}
-
 	version, dirty, err := m.Version()
 	if err != nil && err != migrate.ErrNilVersion {
 		return fmt.Errorf("could not get migration version: %w", err)
 	}
 
-	fmt.Printf("Migrations applied successfully. Current version: %d, dirty: %v", version, dirty)
+	if dirty {
+		log.Printf("Database is dirty at version %d. Attempting to fix...", version)
+		if err := m.Force(int(version)); err != nil {
+			return fmt.Errorf("could not force version %d: %w", version, err)
+		}
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("could not apply migrations: %w", err)
+	}
+
+	currentVersion, _, err := m.Version()
+	if err != nil && err != migrate.ErrNilVersion {
+		return fmt.Errorf("could not get current migration version: %w", err)
+	}
+
+	log.Printf("Database migrations are up to date. Current version: %d", currentVersion)
 	return nil
 }
