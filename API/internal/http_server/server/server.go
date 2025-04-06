@@ -13,15 +13,19 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/jwtauth/v5"
+	"github.com/go-chi/render"
 )
 
 type Server struct {
-	cfg     *config.Config
-	storage *storage.Storage
+	cfg       *config.Config
+	storage   *storage.Storage
+	tokenAuth *jwtauth.JWTAuth
 }
 
 func New(cfg *config.Config, storage *storage.Storage) *Server {
-	return &Server{cfg, storage}
+	tokenAuth := jwtauth.New("HS256", []byte(cfg.App.SecretKey), nil)
+	return &Server{cfg, storage, tokenAuth}
 }
 
 func (s *Server) Start() {
@@ -57,35 +61,29 @@ func (s *Server) Start() {
 		fmt.Printf("Server error: %v\n", err)
 	}
 }
-
 func (s *Server) createRouter() http.Handler {
-
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 
 	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
-	// noteHandler := notehandler.New(s.cfg, s.db, log)
-	// userHandler := userhandler.New(s.cfg, s.db, log)
-
 	auth := chi.NewRouter()
-	// auth.Post("/sign-in", authHandler.SignIn)
 	auth.Post("/sign_up", authHandler.SignUp)
-	// auth.Post("/refresh", authHandler.Refresh)
+	auth.Post("/login", authHandler.SignIn)
 
-	// user := chi.NewRouter()
-	// user.Use(middlewares.AuthMiddleware)
-	// user.Get("/{id}", userHandler.Get)
-	// user.Put("/", userHandler.Update)
-	// user.Delete("/{id}", userHandler.Delete)
+	protected := chi.NewRouter()
+	protected.Use(jwtauth.Verifier(s.tokenAuth))
+	protected.Use(jwtauth.Authenticator(s.tokenAuth))
 
-	// note := chi.NewRouter()
-	// note.Use(middlewares.AuthMiddleware)
-	// note.Get("/", noteHandler.Get)
-	// note.Post("/", noteHandler.Post)
+	protected.Get("/testroute", func(w http.ResponseWriter, r *http.Request) {
+		_, claims, _ := jwtauth.FromContext(r.Context())
 
-	// router.Mount("/note", note)
+		render.JSON(w, r, map[string]any{
+			"id": claims["user_id"],
+		})
+	})
+
 	router.Mount("/auth", auth)
-	// router.Mount("/users", user)
+	router.Mount("/api", protected)
 
 	return router
 }

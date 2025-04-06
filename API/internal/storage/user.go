@@ -25,3 +25,18 @@ func (s *Storage) UserExists(ctx context.Context, username, email string) (bool,
 	}
 	return exists, nil
 }
+
+func (s *Storage) GetUserByUsername(ctx context.Context, name string) (models.User, error) {
+	var user models.User
+
+	err := s.DB.NewSelect().
+		Model(&user).
+		Where("name = ?", name).
+		Scan(ctx)
+
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
+}

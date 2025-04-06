@@ -8,6 +8,7 @@ import (
 
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
+	"github.com/go-chi/jwtauth/v5"
 )
 
 type Credentials struct {
@@ -17,9 +18,10 @@ type Credentials struct {
 }
 
 type AuthHandler struct {
-	cfg     *config.Config
-	storage *storage.Storage
-	log     *slog.Logger
+	cfg       *config.Config
+	storage   *storage.Storage
+	log       *slog.Logger
+	tokenAuth *jwtauth.JWTAuth
 }
 
 type IAuthHandler interface {
@@ -29,7 +31,8 @@ type IAuthHandler interface {
 }
 
 func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) *AuthHandler {
-	return &AuthHandler{cfg, storage, log}
+	tokenAuth := jwtauth.New("HS256", []byte(cfg.App.SecretKey), nil)
+	return &AuthHandler{cfg, storage, log, tokenAuth}
 }
 
 func validateCredentials(user Credentials) error {
