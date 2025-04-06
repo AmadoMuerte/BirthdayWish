@@ -64,6 +64,7 @@ func (s *Server) Start() {
 func (s *Server) createRouter() http.Handler {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
+	router.Use(corsMiddleware)
 
 	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
 	auth := chi.NewRouter()
@@ -86,4 +87,20 @@ func (s *Server) createRouter() http.Handler {
 	router.Mount("/api", protected)
 
 	return router
+}
+
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
