@@ -46,4 +46,5 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		"name":  user.Name,
 	})
 	w.WriteHeader(http.StatusOK)
+	return
 }

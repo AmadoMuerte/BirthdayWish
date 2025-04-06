@@ -71,4 +71,5 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		Message: "user created successfully",
 		UserID:  user.ID,
 	})
+	return
 }
