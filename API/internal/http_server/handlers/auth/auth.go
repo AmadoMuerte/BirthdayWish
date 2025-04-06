@@ -35,9 +35,12 @@ func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) *AuthHa
 func validateCredentials(user Credentials) error {
 	var usernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]{3,20}$`)
 	var passwordRegex = regexp.MustCompile(`^[a-zA-Z0-9!@#$%^&*()-_+=]{8,20}$`)
+	var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 
-	if !usernameRegex.MatchString(user.Username) || !passwordRegex.MatchString(user.Password) {
-		return errors.New("invalid username or password")
+	if !usernameRegex.MatchString(user.Username) ||
+		!passwordRegex.MatchString(user.Password) ||
+		!emailRegex.MatchString(user.Email) {
+		return errors.New("invalid username, password, or email")
 	}
 
 	return nil

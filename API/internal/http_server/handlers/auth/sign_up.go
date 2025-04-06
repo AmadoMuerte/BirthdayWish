@@ -12,43 +12,63 @@ import (
 
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var req Credentials
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, response.Error("failed to decode data"))
+	ctx := r.Context()
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.log.Error("failed to decode request body", "error", err)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error("invalid request body"))
 		return
 	}
 
-	err = validateCredentials(req)
+	if err := validateCredentials(req); err != nil {
+		h.log.Error("invalid credentials", "error", err)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error(err.Error()))
+		return
+	}
+
+	exists, err := h.storage.UserExists(ctx, req.Username, req.Email)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		h.log.Error("failed to validate user")
-		render.JSON(w, r, response.Error("invalid username or password"))
+		h.log.Error("database error checking user existence", "error", err)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error("internal server error"))
+		return
+	}
+
+	if exists {
+		render.Status(r, http.StatusConflict)
+		render.JSON(w, r, response.Error("user with this username or email already exists"))
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		h.log.Error("failed to hash password", "error", err)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error("failed to process password"))
 		return
 	}
 
 	user := models.User{
 		Name:     req.Username,
-		Password: req.Password,
+		Password: string(hashedPassword),
 		Email:    req.Email,
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		h.log.Error("failed to hash password")
-		render.JSON(w, r, response.Error("a user with the same name already exists"))
-		return
-	}
-	user.Password = string(hashedPassword)
-
-	err = h.storage.CreateUser(&user)
-	if err != nil {
-		w.WriteHeader(http.StatusConflict)
-		h.log.Error("error", err)
-		render.JSON(w, r, response.Error("a user with the same name already exists"))
+	if err := h.storage.CreateUser(ctx, &user); err != nil {
+		h.log.Error("failed to create user", "error", err)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, response.Error("failed to create user"))
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	render.Status(r, http.StatusCreated)
+	render.JSON(w, r, struct {
+		Message string `json:"message"`
+		UserID  int64  `json:"userID"`
+	}{
+		Message: "user created successfully",
+		UserID:  user.ID,
+	})
 }

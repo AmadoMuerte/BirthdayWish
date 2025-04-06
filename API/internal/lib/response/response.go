@@ -1,10 +1,5 @@
 package response
 
-type UserResponse struct {
-	Id       uint   `json:"id"`
-	Username string `json:"username"`
-}
-
 type ErrResponse struct {
 	Message string `json:"message,omitempty"`
 }
