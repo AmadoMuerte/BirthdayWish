@@ -1,7 +1,6 @@
 import { getTokenInfo, removeToken, setToken, TokenInfo } from "./token";
 
-// Replace with ENV API ROUTE
-const API_URL = 'http://localhost:3030';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export interface AuthResponse {
     error: boolean;
