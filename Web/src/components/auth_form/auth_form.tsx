@@ -2,13 +2,12 @@ import { Link } from '@tanstack/react-router';
 import Button from '../button/button';
 import styles from './auth_form.module.css';
 import { useState } from 'react';
-import { Form, loginUser, registerUser } from '../../api/auth'
+import { AuthResponse, Form, loginUser, registerUser } from '../../api/auth'
 import validateEmail, { validatePassword, validateUsername } from '../../lib/validator';
 
 interface Props {
     isRegistration: boolean;
 }
-
 
 export default function AuthForm(props: Props) {
     const { isRegistration } = props;
@@ -50,13 +49,23 @@ export default function AuthForm(props: Props) {
             }
         }
 
-        let res
+        let res: AuthResponse
         if (isRegistration) {
             res = await registerUser(form);
         } else {
             res = await loginUser(form);
         }
-        console.log(res)
+
+        if (res.error) {
+            // CHANGE ALERT ON CASTOM
+            alert(res.message);
+        } else {
+            if (isRegistration) {
+                window.location.href = '/login';
+            } else {
+                window.location.href = '/app';
+            }
+        }
     }
 
     return (
