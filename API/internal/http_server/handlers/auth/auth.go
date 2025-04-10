@@ -26,7 +26,7 @@ type AuthHandler struct {
 
 type IAuthHandler interface {
 	SignUp(w http.ResponseWriter, r *http.Request)
-	// SignIn(w http.ResponseWriter, r *http.Request)
+	SignIn(w http.ResponseWriter, r *http.Request)
 	// Refresh(w http.ResponseWriter, r *http.Request)
 }
 

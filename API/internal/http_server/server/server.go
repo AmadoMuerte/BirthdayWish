@@ -10,11 +10,11 @@ import (
 
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
 	authhandler "github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/handlers/auth"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/handlers/wishlist"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/go-chi/render"
 )
 
 type Server struct {
@@ -75,13 +75,8 @@ func (s *Server) createRouter() http.Handler {
 	protected.Use(jwtauth.Verifier(s.tokenAuth))
 	protected.Use(jwtauth.Authenticator(s.tokenAuth))
 
-	protected.Get("/testroute", func(w http.ResponseWriter, r *http.Request) {
-		_, claims, _ := jwtauth.FromContext(r.Context())
-
-		render.JSON(w, r, map[string]any{
-			"id": claims["user_id"],
-		})
-	})
+	wishlisthandler := wishlist.New(s.cfg, s.storage, slog.Default())
+	protected.Get("/wishlist/{user_id}", wishlisthandler.GetWishlist)
 
 	router.Mount("/auth", auth)
 	router.Mount("/api", protected)
