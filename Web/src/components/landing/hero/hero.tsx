@@ -1,7 +1,10 @@
+import { useNavigate } from '@tanstack/react-router'
 import Button from '../../button/button'
 import styles from './hero.module.css'
 
 export default function Hero() {
+
+    const navigate = useNavigate()
 
     return (
         <section className={styles.hero}>
@@ -13,7 +16,11 @@ export default function Hero() {
                     </div>
                     <div className={styles.heroForm}>
                         <div>
-                            <Button handler={() => { }} text='Register' />
+                            <Button handler={() => { 
+
+                                navigate({ to: '/registration'})
+
+                            }} text='Register' />
                             <p>Sign up & never get a bad gift again. Your future self will thank you</p>
                         </div>
                     </div>
