@@ -77,6 +77,7 @@ func (s *Server) createRouter() http.Handler {
 
 	wishlisthandler := wishlist.New(s.cfg, s.storage, slog.Default())
 	protected.Get("/wishlist/{user_id}", wishlisthandler.GetWishlist)
+	protected.Post("/wishlist/", wishlisthandler.AddToWishlist)
 
 	router.Mount("/auth", auth)
 	router.Mount("/api", protected)

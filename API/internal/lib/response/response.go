@@ -1,11 +1,17 @@
 package response
 
-type ErrResponse struct {
+type MessageResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
-func Error(msg string) ErrResponse {
-	return ErrResponse{
+func Error(msg string) MessageResponse {
+	return MessageResponse{
+		Message: msg,
+	}
+}
+
+func Success(msg string) MessageResponse {
+	return MessageResponse{
 		Message: msg,
 	}
 }

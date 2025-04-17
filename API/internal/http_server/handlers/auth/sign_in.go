@@ -3,8 +3,8 @@ package authhandler
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/lib/jwt"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/lib/response"
 	"github.com/go-chi/render"
 	"golang.org/x/crypto/bcrypt"
@@ -33,11 +33,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	claims := map[string]any{
-		"user_id": user.ID,
-		"exp":     time.Now().Add(24 * time.Hour).Unix(),
-		"iat":     time.Now().Unix(),
-	}
+	claims := jwt.NewClaims(jwt.Claims{UserID: user.ID})
 	_, tokenString, err := h.tokenAuth.Encode(claims)
 	if err != nil {
 		h.log.Error("signup: failed to create user", "error", err, "userID", user.ID)

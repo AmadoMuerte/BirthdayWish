@@ -28,7 +28,7 @@ func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) *Wishli
 type WishItem struct {
 	ID        int64     `json:"id"`
 	UserID    int64     `json:"user_id"`
-	Price     string    `json:"price"`
+	Price     float64   `json:"price"`
 	Link      string    `json:"link"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
