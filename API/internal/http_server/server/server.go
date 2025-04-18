@@ -10,7 +10,7 @@ import (
 
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
 	authhandler "github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/handlers/auth"
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/server/routes"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/routes"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
