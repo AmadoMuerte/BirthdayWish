@@ -10,7 +10,7 @@ import (
 
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
 	authhandler "github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/handlers/auth"
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/handlers/wishlist"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/server/routes"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -66,23 +66,31 @@ func (s *Server) createRouter() http.Handler {
 	router.Use(middleware.Logger)
 	router.Use(corsMiddleware)
 
-	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
-	auth := chi.NewRouter()
-	auth.Post("/sign_up", authHandler.SignUp)
-	auth.Post("/login", authHandler.SignIn)
-
-	protected := chi.NewRouter()
-	protected.Use(jwtauth.Verifier(s.tokenAuth))
-	protected.Use(jwtauth.Authenticator(s.tokenAuth))
-
-	wishlisthandler := wishlist.New(s.cfg, s.storage, slog.Default())
-	protected.Get("/wishlist/{user_id}", wishlisthandler.GetWishlist)
-	protected.Post("/wishlist/", wishlisthandler.AddToWishlist)
-
-	router.Mount("/auth", auth)
-	router.Mount("/api", protected)
+	router.Mount("/auth", s.authRoutes())
+	router.Mount("/api", s.apiRoutes())
 
 	return router
+}
+
+func (s *Server) apiRoutes() http.Handler {
+	r := chi.NewRouter()
+
+	r.Use(jwtauth.Verifier(s.tokenAuth))
+	r.Use(jwtauth.Authenticator(s.tokenAuth))
+
+	r.Mount("/wishlist", routes.NewWishlistRouter(s.cfg, s.storage))
+
+	return r
+}
+
+func (s *Server) authRoutes() http.Handler {
+	r := chi.NewRouter()
+	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
+
+	r.Post("/sign_up", authHandler.SignUp)
+	r.Post("/login", authHandler.SignIn)
+
+	return r
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
