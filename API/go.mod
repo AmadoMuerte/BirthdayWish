@@ -2,6 +2,8 @@ module github.com/AmadoMuerte/BirthdayWish/API
 
 go 1.24.2
 
+require github.com/uptrace/bun v1.2.11
+
 require (
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
@@ -27,7 +29,6 @@ require (
 	github.com/puzpuzpuz/xsync/v3 v3.5.1 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
-	github.com/uptrace/bun v1.2.11 // indirect
 	github.com/uptrace/bun/dialect/pgdialect v1.2.11 // indirect
 	github.com/uptrace/bun/driver/pgdriver v1.2.11 // indirect
 	github.com/vmihailenco/bufpool v0.1.11 // indirect
