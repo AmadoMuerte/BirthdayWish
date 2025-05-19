@@ -17,10 +17,8 @@ type db struct {
 }
 
 type AppConfig struct {
-	Mode      string `envconfig:"RUN_MODE" default:"dev"`
-	Address   string `envconfig:"APP_ADDRESS" default:"localhost"`
-	Port      string `envconfig:"APP_PORT" default:"8080"`
-	SecretKey string `envconfig:"SECRET_KEY"`
+	Mode    string `envconfig:"RUN_MODE" default:"dev"`
+	Address string `envconfig:"WISHLIST_ADDRESS" default:"localhost:5057"`
 }
 
 type Config struct {

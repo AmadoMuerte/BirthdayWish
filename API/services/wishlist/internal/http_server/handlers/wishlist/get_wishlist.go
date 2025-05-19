@@ -4,8 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/lib/jwt"
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/lib/response"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
@@ -19,21 +18,6 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 		h.log.Error("user id is empty")
 		render.JSON(w, r, response.Error("user id is empty"))
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	claims, err := jwt.GetClaims(ctx)
-	if err != nil {
-		h.log.Error("failed to get claims from token", "error", err)
-		w.WriteHeader(http.StatusUnauthorized)
-		render.JSON(w, r, response.Error("invalid token"))
-		return
-	}
-
-	if claims.UserID != user_id {
-		h.log.Error("user does not have access to this wishlist")
-		w.WriteHeader(http.StatusUnauthorized)
-		render.JSON(w, r, response.Error("you does not have access to this wishlist"))
 		return
 	}
 

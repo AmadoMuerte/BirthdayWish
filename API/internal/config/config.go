@@ -23,9 +23,14 @@ type AppConfig struct {
 	SecretKey string `envconfig:"SECRET_KEY"`
 }
 
+type Services struct {
+	WishListAddr string `envconfig:"WISHLIST_ADDRESS" default:"localhost:5057"`
+}
+
 type Config struct {
-	DB  db
-	App AppConfig
+	DB       db
+	App      AppConfig
+	Services Services
 }
 
 var getWd = os.Getwd
