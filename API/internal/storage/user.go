@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/models"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/models"
 )
 
 func (s *Storage) CreateUser(ctx context.Context, user *models.User) error {

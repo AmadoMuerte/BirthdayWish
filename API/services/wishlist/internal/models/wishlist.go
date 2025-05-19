@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/models"
 	"github.com/uptrace/bun"
+	// "github.com/AmadoMuerte/BirthdayWish/API/pkg/models"
 )
 
 type Wishlist struct {
@@ -18,5 +18,5 @@ type Wishlist struct {
 	CreatedAt time.Time `bun:"created_at,notnull,default:now()" json:"created_at"`
 	UpdatedAt time.Time `bun:"updated_at,notnull,default:now()" json:"updated_at"`
 
-	User *models.User `bun:"rel:belongs-to,join:user_id=id" json:"user,omitempty"`
+	// User *User `bun:"rel:belongs-to,join:user_id=id" json:"user,omitempty"`
 }
