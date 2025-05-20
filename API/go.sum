@@ -12,6 +12,8 @@ github.com/go-chi/jwtauth/v5 v5.3.3 h1:50Uzmacu35/ZP9ER2Ht6SazwPsnLQ9LRJy6zTZJpH
 github.com/go-chi/jwtauth/v5 v5.3.3/go.mod h1:O4QvPRuZLZghl9WvfVaON+ARfGzpD2PBX/QY5vUz7aQ=
 github.com/go-chi/render v1.0.3 h1:AsXqd2a1/INaIfUSKq3G5uA8weYx20FOsM7uSoCyyt4=
 github.com/go-chi/render v1.0.3/go.mod h1:/gr3hVkmYR0YlEy3LxCuVRFzEu9Ruok+gFqbIofjao0=
+github.com/go-openapi/runtime v0.28.0 h1:gpPPmWSNGo214l6n8hzdXYhPuJcGtziTOgUpvsFWGIQ=
+github.com/go-openapi/runtime v0.28.0/go.mod h1:QN7OzcS+XuYmkQLw05akXk0jRH/eZ3kb18+1KwW9gyc=
 github.com/go-pg/pg/v10 v10.14.0 h1:giXuPsJaWjzwzFJTxy39eBgGE44jpqH1jwv0uI3kBUU=
 github.com/go-pg/pg/v10 v10.14.0/go.mod h1:6kizZh54FveJxw9XZdNg07x7DDBWNsQrSiJS04MLwO8=
 github.com/go-pg/zerochecker v0.2.0 h1:pp7f72c3DobMWOb2ErtZsnrPaSvHd2W4o9//8HtF4mU=

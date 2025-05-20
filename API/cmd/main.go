@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/server"
+	server "github.com/AmadoMuerte/BirthdayWish/API/internal/http_server"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
 )
 

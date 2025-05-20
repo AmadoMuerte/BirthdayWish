@@ -1,7 +1,6 @@
 package wishlist
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
+	http_helper "github.com/AmadoMuerte/BirthdayWish/API/internal/lib"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/jwt"
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
@@ -46,6 +46,7 @@ func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) IWishli
 
 func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
 	userID, err := strconv.ParseInt(chi.URLParam(r, "user_id"), 10, 64)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
@@ -60,26 +61,16 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet,
-		fmt.Sprintf("http://%s/%d", h.cfg.Services.WishListAddr, userID),
-		nil,
-	)
-	if err != nil {
-		h.log.Error("failed to create request", "error", err)
-		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, response.Error("internal error"))
-		return
-	}
-
-	resp, err := (&http.Client{Timeout: 5 * time.Second}).Do(req)
+	path := fmt.Sprintf("%s/%d", h.cfg.Services.WishListAddr, userID)
+	
+	resp, err := http_helper.DoRequest(ctx, "GET", path, nil, nil)
 	if err != nil {
 		h.log.Error("service call failed", "error", err)
 		render.Status(r, http.StatusBadGateway)
 		render.JSON(w, r, response.Error("service unavailable"))
 		return
 	}
+	
 	defer resp.Body.Close()
 
 	w.WriteHeader(resp.StatusCode)
@@ -114,34 +105,66 @@ func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) 
 	}
 	wishItem.UserID = claims.UserID
 
-	serviceURL := "http://" + h.cfg.Services.WishListAddr
-	bodyBytes, _ := json.Marshal(wishItem)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, serviceURL, bytes.NewBuffer(bodyBytes))
-	if err != nil {
-		h.log.Error("failed to create request", "error", err)
-		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, response.Error("internal server error"))
-		return
+	path := fmt.Sprintf("%s", h.cfg.Services.WishListAddr)
+	headers := map[string]string{
+		"1":"Content-Type", 
+		"2":"application/json",
 	}
-
-	req.Header.Set("Content-Type", "application/json")
-	if auth := r.Header.Get("Authorization"); auth != "" {
-		req.Header.Set("Authorization", auth)
-	}
-
-	client := &http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Do(req)
+	
+	resp, err := http_helper.DoRequest(ctx, "GET", path, wishItem, headers)
 	if err != nil {
 		h.log.Error("service call failed", "error", err)
 		render.Status(r, http.StatusBadGateway)
 		render.JSON(w, r, response.Error("service unavailable"))
 		return
 	}
+	
 	defer resp.Body.Close()
 
 	w.WriteHeader(resp.StatusCode)
 	io.Copy(w, resp.Body)
 }
 
-func (h *WishlistHandler) RemoveFromWishlist(w http.ResponseWriter, r *http.Request) {}
+func (h *WishlistHandler) RemoveFromWishlist(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	wishID, err := strconv.ParseInt(chi.URLParam(r, "wish_id"), 10, 64)
+	if err != nil {
+		h.log.Error("wish_id is empty")
+		render.JSON(w, r, response.Error("wish_id is empty"))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	claims, err := jwt.GetClaims(ctx)
+	if err != nil {
+		h.log.Error("failed to get claims from token", "error", err)
+		w.WriteHeader(http.StatusUnauthorized)
+		render.JSON(w, r, response.Error("invalid token"))
+		return
+	}
+
+	exists, err := h.storage.UserExistsByID(ctx, claims.UserID)
+	if err != nil || !exists {
+		fmt.Printf("user id is %d", claims.UserID)
+		h.log.Error("user does not exist", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		render.JSON(w, r, response.Error("user does not exist"))
+		return
+	}
+
+	path := fmt.Sprintf("%s/%d/%d", h.cfg.Services.WishListAddr, wishID, claims.UserID)
+
+	resp, err := http_helper.DoRequest(ctx, "DELETE", path, nil, nil)
+	if err != nil {
+		h.log.Error("service call failed", "error", err)
+		render.Status(r, http.StatusBadGateway)
+		render.JSON(w, r, response.Error("service unavailable"))
+		return
+	}
+
+	defer resp.Body.Close()
+
+	w.WriteHeader(resp.StatusCode)
+	io.Copy(w, resp.Body)
+}

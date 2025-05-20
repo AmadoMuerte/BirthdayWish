@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/http_server/server"
+	server "github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/http_server"
 	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/storage"
 )
 

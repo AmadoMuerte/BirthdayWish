@@ -72,6 +72,16 @@ func (s *Server) createRouter() http.Handler {
 	return router
 }
 
+func (s *Server) authRoutes() http.Handler {
+	r := chi.NewRouter()
+	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
+
+	r.Post("/sign_up", authHandler.SignUp)
+	r.Post("/login", authHandler.SignIn)
+
+	return r
+}
+
 func (s *Server) apiRoutes() http.Handler {
 	r := chi.NewRouter()
 
@@ -83,15 +93,6 @@ func (s *Server) apiRoutes() http.Handler {
 	return r
 }
 
-func (s *Server) authRoutes() http.Handler {
-	r := chi.NewRouter()
-	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
-
-	r.Post("/sign_up", authHandler.SignUp)
-	r.Post("/login", authHandler.SignIn)
-
-	return r
-}
 
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
