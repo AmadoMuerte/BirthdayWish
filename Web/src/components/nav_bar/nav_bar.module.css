@@ -5,7 +5,8 @@
   padding: var(--mantine-spacing-md);
   display: flex;
   flex-direction: column;
-  background-color: var(--mantine-color-blue-filled);
+  background-image: linear-gradient(#20243dd5, #20243d33);
+  background-clip: border-box;
   border-radius: var(--mantine-radius-md);
   margin-left: 20px;
   position: fixed;
@@ -23,18 +24,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--mantine-color-white);
+  color: #ffffff;
 
   &:hover {
-    background-color: var(--mantine-color-blue-7);
+    background-color: var(--tertiary);
   }
 
   &[data-active] {
     &,
     &:hover {
       box-shadow: var(--mantine-shadow-sm);
-      background-color: var(--mantine-color-white);
-      color: var(--mantine-color-blue-6);
+      background-color: var(--tertiary);
+      color: var(--secondary);
     }
   }
 }

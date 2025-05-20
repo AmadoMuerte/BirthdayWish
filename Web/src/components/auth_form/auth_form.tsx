@@ -63,7 +63,7 @@ export default function AuthForm(props: Props) {
             if (isRegistration) {
                 window.location.href = '/login';
             } else {
-                window.location.href = '/app';
+                window.location.href = '/app/wishlist';
             }
         }
     }

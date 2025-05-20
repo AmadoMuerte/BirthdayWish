@@ -16,6 +16,7 @@ import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as AppImport } from './routes/app'
 import { Route as IndexImport } from './routes/index'
+import { Route as AppWishlistImport } from './routes/app.wishlist'
 import { Route as AppSettingsImport } from './routes/app.settings'
 import { Route as AppFriendsImport } from './routes/app.friends'
 import { Route as AppCreateImport } from './routes/app.create'
@@ -50,6 +51,12 @@ const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AppWishlistRoute = AppWishlistImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => AppRoute,
 } as any)
 
 const AppSettingsRoute = AppSettingsImport.update({
@@ -130,6 +137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsImport
       parentRoute: typeof AppImport
     }
+    '/app/wishlist': {
+      id: '/app/wishlist'
+      path: '/wishlist'
+      fullPath: '/app/wishlist'
+      preLoaderRoute: typeof AppWishlistImport
+      parentRoute: typeof AppImport
+    }
   }
 }
 
@@ -139,12 +153,14 @@ interface AppRouteChildren {
   AppCreateRoute: typeof AppCreateRoute
   AppFriendsRoute: typeof AppFriendsRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppWishlistRoute: typeof AppWishlistRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCreateRoute: AppCreateRoute,
   AppFriendsRoute: AppFriendsRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppWishlistRoute: AppWishlistRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -158,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/app/create': typeof AppCreateRoute
   '/app/friends': typeof AppFriendsRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/wishlist': typeof AppWishlistRoute
 }
 
 export interface FileRoutesByTo {
@@ -169,6 +186,7 @@ export interface FileRoutesByTo {
   '/app/create': typeof AppCreateRoute
   '/app/friends': typeof AppFriendsRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/wishlist': typeof AppWishlistRoute
 }
 
 export interface FileRoutesById {
@@ -181,6 +199,7 @@ export interface FileRoutesById {
   '/app/create': typeof AppCreateRoute
   '/app/friends': typeof AppFriendsRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/wishlist': typeof AppWishlistRoute
 }
 
 export interface FileRouteTypes {
@@ -194,6 +213,7 @@ export interface FileRouteTypes {
     | '/app/create'
     | '/app/friends'
     | '/app/settings'
+    | '/app/wishlist'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -204,6 +224,7 @@ export interface FileRouteTypes {
     | '/app/create'
     | '/app/friends'
     | '/app/settings'
+    | '/app/wishlist'
   id:
     | '__root__'
     | '/'
@@ -214,6 +235,7 @@ export interface FileRouteTypes {
     | '/app/create'
     | '/app/friends'
     | '/app/settings'
+    | '/app/wishlist'
   fileRoutesById: FileRoutesById
 }
 
@@ -258,7 +280,8 @@ export const routeTree = rootRoute
       "children": [
         "/app/create",
         "/app/friends",
-        "/app/settings"
+        "/app/settings",
+        "/app/wishlist"
       ]
     },
     "/login": {
@@ -280,6 +303,10 @@ export const routeTree = rootRoute
     },
     "/app/settings": {
       "filePath": "app.settings.tsx",
+      "parent": "/app"
+    },
+    "/app/wishlist": {
+      "filePath": "app.wishlist.tsx",
       "parent": "/app"
     }
   }
