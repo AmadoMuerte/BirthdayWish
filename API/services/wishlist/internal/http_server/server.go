@@ -57,12 +57,14 @@ func (s *Server) Start() {
 		fmt.Printf("Server error: %v\n", err)
 	}
 }
+
 func (s *Server) createRouter() http.Handler {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(corsMiddleware)
 
 	wishlisthandler := wishlist.New(s.cfg, s.storage, slog.Default())
+
 	router.Get("/{user_id}", wishlisthandler.GetWishlist)
 	router.Post("/", wishlisthandler.AddToWishlist)
 	router.Delete("/{wish_id}/{user_id}", wishlisthandler.RemoveFromWishlist)
