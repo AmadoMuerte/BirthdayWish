@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/storage"
 )
 
 type WishlistHandler struct {

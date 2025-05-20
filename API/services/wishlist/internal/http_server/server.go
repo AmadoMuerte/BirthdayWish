@@ -8,31 +8,27 @@ import (
 	"os"
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
-	authhandler "github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/handlers/auth"
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/routes"
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/http_server/handlers/wishlist"
+	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/jwtauth/v5"
 )
 
 type Server struct {
-	cfg       *config.Config
-	storage   *storage.Storage
-	tokenAuth *jwtauth.JWTAuth
+	cfg     *config.Config
+	storage *storage.Storage
 }
 
 func New(cfg *config.Config, storage *storage.Storage) *Server {
-	tokenAuth := jwtauth.New("HS256", []byte(cfg.App.SecretKey), nil)
-	return &Server{cfg, storage, tokenAuth}
+	return &Server{cfg, storage}
 }
 
 func (s *Server) Start() {
 	router := s.createRouter()
 
 	srv := &http.Server{
-		Addr:    s.cfg.App.Address + ":" + s.cfg.App.Port,
+		Addr:    s.cfg.App.Address,
 		Handler: router,
 	}
 
@@ -61,36 +57,19 @@ func (s *Server) Start() {
 		fmt.Printf("Server error: %v\n", err)
 	}
 }
+
 func (s *Server) createRouter() http.Handler {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(corsMiddleware)
 
-	router.Mount("/auth", s.authRoutes())
-	router.Mount("/api", s.apiRoutes())
+	wishlisthandler := wishlist.New(s.cfg, s.storage, slog.Default())
+
+	router.Get("/{user_id}", wishlisthandler.GetWishlist)
+	router.Post("/", wishlisthandler.AddToWishlist)
+	router.Delete("/{wish_id}/{user_id}", wishlisthandler.RemoveFromWishlist)
 
 	return router
-}
-
-func (s *Server) apiRoutes() http.Handler {
-	r := chi.NewRouter()
-
-	r.Use(jwtauth.Verifier(s.tokenAuth))
-	r.Use(jwtauth.Authenticator(s.tokenAuth))
-
-	r.Mount("/wishlist", routes.NewWishlistRouter(s.cfg, s.storage))
-
-	return r
-}
-
-func (s *Server) authRoutes() http.Handler {
-	r := chi.NewRouter()
-	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
-
-	r.Post("/sign_up", authHandler.SignUp)
-	r.Post("/login", authHandler.SignIn)
-
-	return r
 }
 
 func corsMiddleware(next http.Handler) http.Handler {

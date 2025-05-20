@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/lib/jwt"
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/lib/response"
-	"github.com/AmadoMuerte/BirthdayWish/API/internal/models"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
+	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/models"
 	"github.com/go-chi/render"
 )
 
@@ -20,23 +19,6 @@ func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) 
 		render.JSON(w, r, response.Error("invalid request body"))
 		return
 	}
-
-	claims, err := jwt.GetClaims(ctx)
-	if err != nil {
-		h.log.Error("failed to get claims from token", "error", err)
-		w.WriteHeader(http.StatusUnauthorized)
-		render.JSON(w, r, response.Error("invalid token"))
-		return
-	}
-
-	exists, err := h.storage.UserExistsByID(ctx, claims.UserID)
-	if err != nil || !exists {
-		h.log.Error("user does not exist", "error", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		render.JSON(w, r, response.Error("user does not exist"))
-		return
-	}
-	req.UserID = claims.UserID
 
 	if req.Name == "" {
 		h.log.Error("invalid name")

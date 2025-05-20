@@ -40,12 +40,6 @@ func NewStorage(cfg *config.Config) (*Storage, error) {
 	db.SetMaxIdleConns(25)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
-	err := ApplyMigrations(sqldb, cfg.DB.Name)
-	if err != nil {
-		db.Close()
-		return nil, fmt.Errorf("failed to apply migrations: %w", err)
-	}
-
 	return &Storage{DB: db}, nil
 }
 
