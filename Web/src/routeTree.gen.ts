@@ -12,15 +12,25 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as RegistrationImport } from './routes/registration'
+import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as AppImport } from './routes/app'
 import { Route as IndexImport } from './routes/index'
+import { Route as AppSettingsImport } from './routes/app.settings'
+import { Route as AppFriendsImport } from './routes/app.friends'
+import { Route as AppCreateImport } from './routes/app.create'
 
 // Create/Update Routes
 
 const RegistrationRoute = RegistrationImport.update({
   id: '/registration',
   path: '/registration',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LogoutRoute = LogoutImport.update({
+  id: '/logout',
+  path: '/logout',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -40,6 +50,24 @@ const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AppSettingsRoute = AppSettingsImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppFriendsRoute = AppFriendsImport.update({
+  id: '/friends',
+  path: '/friends',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppCreateRoute = AppCreateImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AppRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -67,6 +95,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutImport
+      parentRoute: typeof rootRoute
+    }
     '/registration': {
       id: '/registration'
       path: '/registration'
@@ -74,53 +109,127 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegistrationImport
       parentRoute: typeof rootRoute
     }
+    '/app/create': {
+      id: '/app/create'
+      path: '/create'
+      fullPath: '/app/create'
+      preLoaderRoute: typeof AppCreateImport
+      parentRoute: typeof AppImport
+    }
+    '/app/friends': {
+      id: '/app/friends'
+      path: '/friends'
+      fullPath: '/app/friends'
+      preLoaderRoute: typeof AppFriendsImport
+      parentRoute: typeof AppImport
+    }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsImport
+      parentRoute: typeof AppImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface AppRouteChildren {
+  AppCreateRoute: typeof AppCreateRoute
+  AppFriendsRoute: typeof AppFriendsRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppCreateRoute: AppCreateRoute,
+  AppFriendsRoute: AppFriendsRoute,
+  AppSettingsRoute: AppSettingsRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/registration': typeof RegistrationRoute
+  '/app/create': typeof AppCreateRoute
+  '/app/friends': typeof AppFriendsRoute
+  '/app/settings': typeof AppSettingsRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/registration': typeof RegistrationRoute
+  '/app/create': typeof AppCreateRoute
+  '/app/friends': typeof AppFriendsRoute
+  '/app/settings': typeof AppSettingsRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/registration': typeof RegistrationRoute
+  '/app/create': typeof AppCreateRoute
+  '/app/friends': typeof AppFriendsRoute
+  '/app/settings': typeof AppSettingsRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/login' | '/registration'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/login'
+    | '/logout'
+    | '/registration'
+    | '/app/create'
+    | '/app/friends'
+    | '/app/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/login' | '/registration'
-  id: '__root__' | '/' | '/app' | '/login' | '/registration'
+  to:
+    | '/'
+    | '/app'
+    | '/login'
+    | '/logout'
+    | '/registration'
+    | '/app/create'
+    | '/app/friends'
+    | '/app/settings'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/login'
+    | '/logout'
+    | '/registration'
+    | '/app/create'
+    | '/app/friends'
+    | '/app/settings'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRoute: typeof AppRoute
+  AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  LogoutRoute: typeof LogoutRoute
   RegistrationRoute: typeof RegistrationRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRoute: AppRoute,
+  AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  LogoutRoute: LogoutRoute,
   RegistrationRoute: RegistrationRoute,
 }
 
@@ -137,6 +246,7 @@ export const routeTree = rootRoute
         "/",
         "/app",
         "/login",
+        "/logout",
         "/registration"
       ]
     },
@@ -144,13 +254,33 @@ export const routeTree = rootRoute
       "filePath": "index.tsx"
     },
     "/app": {
-      "filePath": "app.tsx"
+      "filePath": "app.tsx",
+      "children": [
+        "/app/create",
+        "/app/friends",
+        "/app/settings"
+      ]
     },
     "/login": {
       "filePath": "login.tsx"
     },
+    "/logout": {
+      "filePath": "logout.tsx"
+    },
     "/registration": {
       "filePath": "registration.tsx"
+    },
+    "/app/create": {
+      "filePath": "app.create.tsx",
+      "parent": "/app"
+    },
+    "/app/friends": {
+      "filePath": "app.friends.tsx",
+      "parent": "/app"
+    },
+    "/app/settings": {
+      "filePath": "app.settings.tsx",
+      "parent": "/app"
     }
   }
 }

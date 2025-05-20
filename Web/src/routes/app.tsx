@@ -1,5 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { ProtectedRoute } from '../components/protected_route'
+import { MantineProvider } from '@mantine/core'
+import '@mantine/core/styles.css';
+import { AppWrapper } from '../components/app_wrapper/app_wrapper';
 
 export const Route = createFileRoute('/app')({
   component: () => (
@@ -11,8 +14,8 @@ export const Route = createFileRoute('/app')({
 
 function RouteComponent() {
   return (
-    <div className="container">
-      <div>Hello "/app"!</div>
-    </div>
+    <MantineProvider>
+      <AppWrapper content={<Outlet />} />
+    </MantineProvider>
   )
 }
