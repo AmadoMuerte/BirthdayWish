@@ -371,7 +371,7 @@ body {
   background-image: url("https://cdn.prod.website-files.com/5e3560ac9615a2309b6fb86c/654285e5ab26e8e2aff90db8_svg_dot.svg") !important;
   background-repeat: repeat;
   background-size: auto;
-  color: #ffffff;
+  color: #ffffff !important;
   min-height: 100vh;
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;

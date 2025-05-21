@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/handlers/minio"
 	http_helper "github.com/AmadoMuerte/BirthdayWish/API/internal/lib"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/jwt"
@@ -24,11 +25,21 @@ type WishlistHandler struct {
 	log     *slog.Logger
 }
 
-type wishItem struct {
+type wishItemReq struct {
+	Price     float64 `json:"price"`
+	Link      string  `json:"link"`
+	Image     string  `json:"image_data"`
+	ImageType string  `json:"image_type"`
+	Name      string  `json:"name"`
+}
+
+type wishItemRes struct {
 	ID        int64     `json:"id"`
 	UserID    int64     `json:"user_id"`
 	Price     float64   `json:"price"`
 	Link      string    `json:"link"`
+	ImageUrl  string    `json:"image_url"`
+	ImageName string    `json:"image_name"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -62,7 +73,7 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := fmt.Sprintf("%s/%d", h.cfg.Services.WishListAddr, userID)
-	
+
 	resp, err := http_helper.DoRequest(ctx, "GET", path, nil, nil)
 	if err != nil {
 		h.log.Error("service call failed", "error", err)
@@ -70,7 +81,7 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, response.Error("service unavailable"))
 		return
 	}
-	
+
 	defer resp.Body.Close()
 
 	w.WriteHeader(resp.StatusCode)
@@ -80,8 +91,8 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var wishItem wishItem
-	if err := json.NewDecoder(r.Body).Decode(&wishItem); err != nil {
+	var wishItemReq wishItemReq
+	if err := json.NewDecoder(r.Body).Decode(&wishItemReq); err != nil {
 		h.log.Error("failed to decode request body", "error", err)
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, response.Error("invalid request body"))
@@ -103,22 +114,54 @@ func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) 
 		render.JSON(w, r, response.Error("user not found"))
 		return
 	}
-	wishItem.UserID = claims.UserID
 
-	path := fmt.Sprintf("%s", h.cfg.Services.WishListAddr)
-	headers := map[string]string{
-		"1":"Content-Type", 
-		"2":"application/json",
+	wishItemRes := wishItemRes{
+		UserID: claims.UserID,
+		Price:  wishItemReq.Price,
+		Link:   wishItemReq.Link,
+		Name:   wishItemReq.Name,
 	}
-	
-	resp, err := http_helper.DoRequest(ctx, "GET", path, wishItem, headers)
+
+	path := fmt.Sprintf("%s/%s", h.cfg.Services.Minio, "images")
+	resp, err := http_helper.DoRequest(
+		ctx,
+		"POST",
+		path,
+		map[string]string{"data": wishItemReq.Image, "type": wishItemReq.ImageType},
+		map[string]string{"1": "application/json", "2": "Content-Type"},
+	)
+
+	if resp.StatusCode != 201 || err != nil {
+		h.log.Error("minio service is not create image", "error", err)
+		render.Status(r, http.StatusBadGateway)
+		render.JSON(w, r, response.Error("service unavailable"))
+		return
+	}
+
+	var imageRecord minio.ImageRecord
+	if err := json.NewDecoder(resp.Body).Decode(&imageRecord); err != nil {
+		h.log.Error("failed to decode request body", "error", err)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error("invalid request body"))
+		return
+	}
+	wishItemRes.ImageUrl = imageRecord.PublicURL
+	wishItemRes.ImageName = imageRecord.OriginalName
+
+	path = fmt.Sprintf("%s", h.cfg.Services.WishListAddr)
+	headers := map[string]string{
+		"1": "Content-Type",
+		"2": "application/json",
+	}
+
+	resp, err = http_helper.DoRequest(ctx, "POST", path, wishItemRes, headers)
 	if err != nil {
 		h.log.Error("service call failed", "error", err)
 		render.Status(r, http.StatusBadGateway)
 		render.JSON(w, r, response.Error("service unavailable"))
 		return
 	}
-	
+
 	defer resp.Body.Close()
 
 	w.WriteHeader(resp.StatusCode)

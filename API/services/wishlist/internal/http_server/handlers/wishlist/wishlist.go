@@ -3,7 +3,6 @@ package wishlist
 import (
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/storage"
@@ -23,14 +22,4 @@ type IWishlistHandler interface {
 
 func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) *WishlistHandler {
 	return &WishlistHandler{cfg, storage, log}
-}
-
-type WishItem struct {
-	ID        int64     `json:"id"`
-	UserID    int64     `json:"user_id"`
-	Price     float64   `json:"price"`
-	Link      string    `json:"link"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
 }

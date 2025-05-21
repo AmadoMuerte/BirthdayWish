@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
+	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
@@ -27,14 +28,16 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, response.Error("Internal Server Error"))
 		return
 	} else {
-		var response = []WishItem{}
+		var response = []models.Wishlist{}
 
 		for _, wishItem := range wishlist {
-			response = append(response, WishItem{
+			response = append(response, models.Wishlist{
 				ID:        wishItem.ID,
 				UserID:    wishItem.UserID,
 				Price:     wishItem.Price,
 				Link:      wishItem.Link,
+				ImageUrl:  wishItem.ImageUrl,
+				ImageName: wishItem.ImageName,
 				Name:      wishItem.Name,
 				CreatedAt: wishItem.CreatedAt,
 				UpdatedAt: wishItem.UpdatedAt,

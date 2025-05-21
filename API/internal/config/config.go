@@ -25,6 +25,7 @@ type AppConfig struct {
 
 type Services struct {
 	WishListAddr string `envconfig:"WISHLIST_ADDRESS" default:"localhost:5057"`
+	Minio        string `envconfig:"MINLO_ADDRESS" default:"localhost:5058"`
 }
 
 type Config struct {

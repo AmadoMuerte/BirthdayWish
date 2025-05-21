@@ -20,6 +20,18 @@ services:
     networks:
       - db_network
 
+  minio:
+    image: minio/minio
+    ports:
+      - ${MINIO_API_PORT:-9000}:9000
+      - ${MINIO_CONSOLE_PORT}:9001
+    environment:
+      - MINIO_ROOT_USER=${MINIO_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASS}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
   pgadmin:
     image: dpage/pgadmin4
     restart: always
@@ -35,6 +47,7 @@ services:
 
 volumes:
   db_data:
+  minio_data:
 
 networks:
   db_network:
