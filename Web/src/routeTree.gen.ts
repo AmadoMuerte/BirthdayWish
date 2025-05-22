@@ -20,6 +20,7 @@ import { Route as AppWishlistImport } from './routes/app.wishlist'
 import { Route as AppSettingsImport } from './routes/app.settings'
 import { Route as AppFriendsImport } from './routes/app.friends'
 import { Route as AppCreateImport } from './routes/app.create'
+import { Route as AppWishIdImport } from './routes/app.$wishId'
 
 // Create/Update Routes
 
@@ -77,6 +78,12 @@ const AppCreateRoute = AppCreateImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
+const AppWishIdRoute = AppWishIdImport.update({
+  id: '/$wishId',
+  path: '/$wishId',
+  getParentRoute: () => AppRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -116,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegistrationImport
       parentRoute: typeof rootRoute
     }
+    '/app/$wishId': {
+      id: '/app/$wishId'
+      path: '/$wishId'
+      fullPath: '/app/$wishId'
+      preLoaderRoute: typeof AppWishIdImport
+      parentRoute: typeof AppImport
+    }
     '/app/create': {
       id: '/app/create'
       path: '/create'
@@ -150,6 +164,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AppRouteChildren {
+  AppWishIdRoute: typeof AppWishIdRoute
   AppCreateRoute: typeof AppCreateRoute
   AppFriendsRoute: typeof AppFriendsRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -157,6 +172,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppWishIdRoute: AppWishIdRoute,
   AppCreateRoute: AppCreateRoute,
   AppFriendsRoute: AppFriendsRoute,
   AppSettingsRoute: AppSettingsRoute,
@@ -171,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/registration': typeof RegistrationRoute
+  '/app/$wishId': typeof AppWishIdRoute
   '/app/create': typeof AppCreateRoute
   '/app/friends': typeof AppFriendsRoute
   '/app/settings': typeof AppSettingsRoute
@@ -183,6 +200,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/registration': typeof RegistrationRoute
+  '/app/$wishId': typeof AppWishIdRoute
   '/app/create': typeof AppCreateRoute
   '/app/friends': typeof AppFriendsRoute
   '/app/settings': typeof AppSettingsRoute
@@ -196,6 +214,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/registration': typeof RegistrationRoute
+  '/app/$wishId': typeof AppWishIdRoute
   '/app/create': typeof AppCreateRoute
   '/app/friends': typeof AppFriendsRoute
   '/app/settings': typeof AppSettingsRoute
@@ -210,6 +229,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/registration'
+    | '/app/$wishId'
     | '/app/create'
     | '/app/friends'
     | '/app/settings'
@@ -221,6 +241,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/registration'
+    | '/app/$wishId'
     | '/app/create'
     | '/app/friends'
     | '/app/settings'
@@ -232,6 +253,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/registration'
+    | '/app/$wishId'
     | '/app/create'
     | '/app/friends'
     | '/app/settings'
@@ -278,6 +300,7 @@ export const routeTree = rootRoute
     "/app": {
       "filePath": "app.tsx",
       "children": [
+        "/app/$wishId",
         "/app/create",
         "/app/friends",
         "/app/settings",
@@ -292,6 +315,10 @@ export const routeTree = rootRoute
     },
     "/registration": {
       "filePath": "registration.tsx"
+    },
+    "/app/$wishId": {
+      "filePath": "app.$wishId.tsx",
+      "parent": "/app"
     },
     "/app/create": {
       "filePath": "app.create.tsx",

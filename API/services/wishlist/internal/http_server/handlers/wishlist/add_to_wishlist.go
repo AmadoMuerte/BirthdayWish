@@ -27,20 +27,6 @@ func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if req.Link == "" {
-		h.log.Error("invalid link")
-		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, response.Error("invalid link"))
-		return
-	}
-
-	if req.ImageUrl == "" || req.ImageName == "" {
-		h.log.Error("invalid image")
-		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, response.Error("invalid image"))
-		return
-	}
-
 	if err := h.storage.AddToWishlist(ctx, req); err != nil {
 		h.log.Error("failed to add wishlist item", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)

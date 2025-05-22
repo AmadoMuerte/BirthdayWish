@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { WishItem as WishItemType } from '../../api/wishlist';
 import { getWishlist } from '../../api/wishlist';
 import classes from './wishlist.module.css';
+import wishItemImage from '../../assets/wish_not_found.jpg';
+import { Link } from '@tanstack/react-router';
+
 
 export function Wishlist() {
     const [wishlist, setWishlist] = useState<WishItemType[]>([]);
@@ -25,21 +28,26 @@ export function Wishlist() {
     }, []);
 
     function WishItem(props: WishItemType) {
-        const { image_url, name, price, created_at } = props;
+        const { id, image_url, name, price, created_at } = props;
 
         return (
-            <div className={classes.wishItem}>
+            <Link
+                to={`/app/$wishId`}
+                params={{
+                    wishId: id,
+                }}
+                className={classes.wishItem}>
                 <div className={classes.wishItemImage}>
-                    {image_url && <img src={image_url} alt={name} />}
+                    <img src={image_url ? image_url : wishItemImage} alt={name} />
                 </div>
                 <h3>{name}</h3>
                 <div className={classes.wishItemInfo}>
-                    <span className={classes.wishItemPrice}>${price}</span>
+                    <span className={classes.wishItemPrice}>{price ? price + ' $' : ''}</span>
                     <span className={classes.wishItemDate}>
                         {new Date(created_at).toDateString()}
                     </span>
                 </div>
-            </div>
+            </Link>
         );
     }
 

@@ -122,31 +122,35 @@ func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) 
 		Name:   wishItemReq.Name,
 	}
 
-	path := fmt.Sprintf("%s/%s", h.cfg.Services.Minio, "images")
-	resp, err := http_helper.DoRequest(
-		ctx,
-		"POST",
-		path,
-		map[string]string{"data": wishItemReq.Image, "type": wishItemReq.ImageType},
-		map[string]string{"1": "application/json", "2": "Content-Type"},
-	)
+	var path string
+	var resp *http.Response
 
-	if resp.StatusCode != 201 || err != nil {
-		h.log.Error("minio service is not create image", "error", err)
-		render.Status(r, http.StatusBadGateway)
-		render.JSON(w, r, response.Error("service unavailable"))
-		return
-	}
+	if wishItemReq.Image != "" && wishItemReq.ImageType != "" {
+		path := fmt.Sprintf("%s/%s", h.cfg.Services.Minio, "images")
+		resp, err = http_helper.DoRequest(
+			ctx,
+			"POST",
+			path,
+			map[string]string{"data": wishItemReq.Image, "type": wishItemReq.ImageType},
+			map[string]string{"1": "application/json", "2": "Content-Type"},
+		)
+		if resp.StatusCode != 201 || err != nil {
+			h.log.Error("minio service is not create image", "error", err)
+			render.Status(r, http.StatusBadGateway)
+			render.JSON(w, r, response.Error("service unavailable"))
+			return
+		}
 
-	var imageRecord minio.ImageRecord
-	if err := json.NewDecoder(resp.Body).Decode(&imageRecord); err != nil {
-		h.log.Error("failed to decode request body", "error", err)
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("invalid request body"))
-		return
+		var imageRecord minio.ImageRecord
+		if err := json.NewDecoder(resp.Body).Decode(&imageRecord); err != nil {
+			h.log.Error("failed to decode request body", "error", err)
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, response.Error("invalid request body"))
+			return
+		}
+		wishItemRes.ImageUrl = imageRecord.PublicURL
+		wishItemRes.ImageName = imageRecord.OriginalName
 	}
-	wishItemRes.ImageUrl = imageRecord.PublicURL
-	wishItemRes.ImageName = imageRecord.OriginalName
 
 	path = fmt.Sprintf("%s", h.cfg.Services.WishListAddr)
 	headers := map[string]string{

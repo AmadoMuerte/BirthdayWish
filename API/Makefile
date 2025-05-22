@@ -10,4 +10,5 @@ run-srvc-wishlist:
 	cd services/wishlist && go run cmd/main.go
 
 
-
+run-srvc-minio:
+	cd services/minio && go run cmd/main.go

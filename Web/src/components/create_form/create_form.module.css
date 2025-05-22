@@ -1,0 +1,152 @@
+.sectionForm {
+    width: 100%;
+    height: 88dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    padding: 20px 30px;
+    background-image: linear-gradient(#20243dd5, #20243d33);
+    background-clip: border-box;
+    border-radius: var(--mantine-radius-md);
+    border-radius: 15px;
+}
+
+.title {
+    text-align: center;
+    color: #fff;
+    font-size: 50px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin: 0;
+}
+
+.description {
+    text-align: center;
+    color: #bdbdbd;
+    font-size: 18px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 50px;
+}
+
+.form_wrapper {
+    display: flex;
+    gap: 30px;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.form_inputWrapper {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.formGroup {
+    margin-bottom: 0;
+}
+
+.label {
+    display: block;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: unset;
+    background: #09040f;
+    color: #fff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #A4B3B6;
+}
+
+.uploadSection {
+    width: 35%;
+}
+
+.uploadArea {
+    height: 100%;
+    min-height: 250px;
+    border: 2px dashed #A4B3B6;
+    border-radius: 12px;
+    text-align: center;
+    padding: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #09040f;
+    transition: all 0.3s ease;
+}
+
+.uploadArea:hover {
+    border-color: #D8BFD8;
+    background: rgba(61, 36, 71, 0.5);
+}
+
+.uploadText {
+    color: #A4B3B6;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.uploadText span {
+    font-weight: 700;
+    color: #fff;
+    font-size: 18px;
+    display: block;
+}
+
+.imagePreview {
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.fileInput {
+    display: none;
+}
+
+.button_wrapper {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.submitButton {
+    width: 30%;
+    background-color: #fff;
+    color: #2A1B3D;
+    padding: 12px 0;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.submitButton:hover {
+    background-color: #D8BFD8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
