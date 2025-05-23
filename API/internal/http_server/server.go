@@ -10,6 +10,7 @@ import (
 
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
 	authhandler "github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/handlers/auth"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/handlers/wishlist"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/routes"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
 	"github.com/go-chi/chi/v5"
@@ -75,10 +76,11 @@ func (s *Server) createRouter() http.Handler {
 func (s *Server) authRoutes() http.Handler {
 	r := chi.NewRouter()
 	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
+	wishhandler := wishlist.New(s.cfg, s.storage, slog.Default())
 
 	r.Post("/sign_up", authHandler.SignUp)
 	r.Post("/login", authHandler.SignIn)
-
+	r.Get("/get_wishlist", wishhandler.GetShareList)
 	return r
 }
 
@@ -92,7 +94,6 @@ func (s *Server) apiRoutes() http.Handler {
 
 	return r
 }
-
 
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

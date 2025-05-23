@@ -21,15 +21,13 @@ export type WishItemReq = {
     name: string;
 }
 
-export async function getWishlist(): Promise<WishItem[]> {
-    const tokenInfo = getTokenInfo();
-
+export async function getWishlist(token: string | null, path: string): Promise<WishItem[]> {
     try {
-        const response = await fetch(API_URL + '/api/wishlist/' + tokenInfo.payload?.user_id, {
+        const response = await fetch(API_URL + path, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + tokenInfo.token
+                'Authorization': 'Bearer ' + token
             }
         });
 

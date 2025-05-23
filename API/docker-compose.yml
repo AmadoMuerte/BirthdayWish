@@ -22,6 +22,7 @@ services:
 
   minio:
     image: minio/minio
+    restart: always
     ports:
       - ${MINIO_API_PORT:-9000}:9000
       - ${MINIO_CONSOLE_PORT}:9001
