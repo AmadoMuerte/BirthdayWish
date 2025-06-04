@@ -51,6 +51,8 @@ type IWishlistHandler interface {
 	AddToWishlist(w http.ResponseWriter, r *http.Request)
 	RemoveFromWishlist(w http.ResponseWriter, r *http.Request)
 	GetShareList(w http.ResponseWriter, r *http.Request)
+	GetWish(w http.ResponseWriter, r *http.Request)
+	PartialUpdateWish(w http.ResponseWriter, r *http.Request)
 }
 
 func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) IWishlistHandler {
@@ -124,6 +126,35 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(resp.StatusCode)
 	io.Copy(w, resp.Body)
 }
+
+func (h *WishlistHandler) GetWish(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	wishID, err := strconv.ParseInt(chi.URLParam(r, "wish_id"), 10, 64)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error("invalid wish id"))
+		return
+	}
+
+	claims, err := jwt.GetClaims(ctx)
+
+	path := fmt.Sprintf("%s/%d/%d", h.cfg.Services.WishListAddr, wishID, claims.UserID)
+
+	resp, err := http_helper.DoRequest(ctx, "GET", path, nil, nil)
+	if err != nil {
+		h.log.Error("service call failed", "error", err)
+		render.Status(r, http.StatusBadGateway)
+		render.JSON(w, r, response.Error("service unavailable"))
+		return
+	}
+
+	defer resp.Body.Close()
+
+	w.WriteHeader(resp.StatusCode)
+	io.Copy(w, resp.Body)
+}
+
 
 func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -251,4 +282,110 @@ func (h *WishlistHandler) RemoveFromWishlist(w http.ResponseWriter, r *http.Requ
 
 	w.WriteHeader(resp.StatusCode)
 	io.Copy(w, resp.Body)
+}
+
+
+func (h *WishlistHandler) PartialUpdateWish(w http.ResponseWriter, r *http.Request) {
+    ctx := r.Context()
+
+    bodyBytes, err := io.ReadAll(r.Body)
+    if err != nil {
+        h.log.Error("failed to read request body", "error", err)
+        render.Status(r, http.StatusBadRequest)
+        render.JSON(w, r, response.Error("invalid request body"))
+        return
+    }
+    defer r.Body.Close()
+
+    var wishItemReq wishItemReq
+    if err := json.Unmarshal(bodyBytes, &wishItemReq); err != nil {
+        h.log.Error("failed to decode request body", "error", err)
+        render.Status(r, http.StatusBadRequest)
+        render.JSON(w, r, response.Error("invalid request body"))
+        return
+    }
+
+    var updateData map[string]any
+    if err := json.Unmarshal(bodyBytes, &updateData); err != nil {
+        h.log.Error("failed to decode request body", "error", err)
+        render.Status(r, http.StatusBadRequest)
+        render.JSON(w, r, response.Error("invalid request body"))
+        return
+    }
+
+    wishID, err := strconv.ParseInt(chi.URLParam(r, "wish_id"), 10, 64)
+    if err != nil {
+        h.log.Error("invalid wish_id", "error", err)
+        render.JSON(w, r, response.Error("invalid wish_id"))
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+
+    claims, err := jwt.GetClaims(ctx)
+    if err != nil {
+        h.log.Error("failed to get claims from token", "error", err)
+        w.WriteHeader(http.StatusUnauthorized)
+        render.JSON(w, r, response.Error("invalid token"))
+        return
+    }
+
+    exists, err := h.storage.UserExistsByID(ctx, claims.UserID)
+    if err != nil || !exists {
+        h.log.Error("user does not exist", "user_id", claims.UserID, "error", err)
+        w.WriteHeader(http.StatusNotFound)
+        render.JSON(w, r, response.Error("user not found"))
+        return
+    }
+
+    if wishItemReq.Image != "" && wishItemReq.ImageType != "" {
+        imagePath := fmt.Sprintf("%s/images", h.cfg.Services.Minio)
+        imageResp, err := http_helper.DoRequest(
+            ctx,
+            "POST",
+            imagePath,
+            map[string]string{"data": wishItemReq.Image, "type": wishItemReq.ImageType},
+            map[string]string{"Content-Type": "application/json"},
+        )
+        if err != nil || imageResp.StatusCode != http.StatusCreated {
+            h.log.Error("minio service failed", "error", err)
+            render.Status(r, http.StatusBadGateway)
+            render.JSON(w, r, response.Error("image service unavailable"))
+            return
+        }
+        defer imageResp.Body.Close()
+
+        var imageRecord minio.ImageRecord
+        if err := json.NewDecoder(imageResp.Body).Decode(&imageRecord); err != nil {
+            h.log.Error("failed to decode image response", "error", err)
+            render.Status(r, http.StatusInternalServerError)
+            render.JSON(w, r, response.Error("failed to process image"))
+            return
+        }
+
+        updateData["image_url"] = imageRecord.PublicURL
+        updateData["image_name"] = imageRecord.OriginalName
+    }
+
+    path := fmt.Sprintf("%s/%d/%d", h.cfg.Services.WishListAddr, wishID, claims.UserID)
+    
+    resp, err := http_helper.DoRequest(
+        ctx,
+        "PATCH",
+        path,
+        updateData,
+        map[string]string{"Content-Type": "application/json"},
+    )
+    if err != nil {
+        h.log.Error("service call failed", "error", err)
+        render.Status(r, http.StatusBadGateway)
+        render.JSON(w, r, response.Error("service unavailable"))
+        return
+    }
+    defer resp.Body.Close()
+
+    w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+    w.WriteHeader(resp.StatusCode)
+    if _, err := io.Copy(w, resp.Body); err != nil {
+        h.log.Error("failed to write response", "error", err)
+    }
 }

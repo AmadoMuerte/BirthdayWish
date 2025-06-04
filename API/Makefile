@@ -3,7 +3,7 @@
 db:
 	docker-compose up -d
 
-run-getaway:
+run-gateway:
 	go run cmd/main.go
 
 run-srvc-wishlist:
