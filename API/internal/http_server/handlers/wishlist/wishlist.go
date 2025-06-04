@@ -51,6 +51,7 @@ type IWishlistHandler interface {
 	AddToWishlist(w http.ResponseWriter, r *http.Request)
 	RemoveFromWishlist(w http.ResponseWriter, r *http.Request)
 	GetShareList(w http.ResponseWriter, r *http.Request)
+	GetWish(w http.ResponseWriter, r *http.Request)
 	PartialUpdateWish(w http.ResponseWriter, r *http.Request)
 }
 
@@ -125,6 +126,35 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(resp.StatusCode)
 	io.Copy(w, resp.Body)
 }
+
+func (h *WishlistHandler) GetWish(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	wishID, err := strconv.ParseInt(chi.URLParam(r, "wish_id"), 10, 64)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error("invalid wish id"))
+		return
+	}
+
+	claims, err := jwt.GetClaims(ctx)
+
+	path := fmt.Sprintf("%s/%d/%d", h.cfg.Services.WishListAddr, wishID, claims.UserID)
+
+	resp, err := http_helper.DoRequest(ctx, "GET", path, nil, nil)
+	if err != nil {
+		h.log.Error("service call failed", "error", err)
+		render.Status(r, http.StatusBadGateway)
+		render.JSON(w, r, response.Error("service unavailable"))
+		return
+	}
+
+	defer resp.Body.Close()
+
+	w.WriteHeader(resp.StatusCode)
+	io.Copy(w, resp.Body)
+}
+
 
 func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

@@ -19,6 +19,7 @@ type IWishlistHandler interface {
 	AddToWishlist(w http.ResponseWriter, r *http.Request)
 	RemoveFromWishlist(w http.ResponseWriter, r *http.Request)
 	PartialUpdateWish(w http.ResponseWriter, r *http.Request)
+	GetWish(w http.ResponseWriter, r *http.Request)
 }
 
 func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) *WishlistHandler {

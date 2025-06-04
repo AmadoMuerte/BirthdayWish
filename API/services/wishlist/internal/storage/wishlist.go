@@ -22,6 +22,21 @@ func (s *Storage) GetWishlist(ctx context.Context, userID int64) ([]models.Wishl
 	return wishlist, nil
 }
 
+func (s *Storage) GetWish(ctx context.Context, userID, wishID int64) (models.Wishlist, error) {
+	var wishlist models.Wishlist
+
+	err := s.DB.NewSelect().
+		Model(&wishlist).
+		Where("id = ?", wishID).
+		Where("user_id = ?", userID).
+		Scan(ctx)
+	if err != nil {
+		return wishlist, err
+	}
+
+	return wishlist, nil
+}
+
 func (s *Storage) CheckWishExists(ctx context.Context, userID int64, itemID int64) (bool, error) {
      exists, err := s.DB.NewSelect().
         Model((*models.Wishlist)(nil)).
@@ -82,7 +97,6 @@ func (s *Storage) PartialUpdateWishItem(ctx context.Context, userID, itemID int6
     
     return nil
 }
-
 
 func (s *Storage) RemoveFromWishlist(ctx context.Context, wishID, userID int64) error {
 	var wishlist models.Wishlist
