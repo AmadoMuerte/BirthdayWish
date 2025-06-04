@@ -16,6 +16,7 @@ func NewWishlistRouter(cfg *config.Config, storage *storage.Storage) *chi.Mux {
 	router.Get("/{user_id}", wishlisthandler.GetWishlist)
 	router.Post("/", wishlisthandler.AddToWishlist)
 	router.Delete("/{wish_id}", wishlisthandler.RemoveFromWishlist)
+	router.Patch("/{wish_id}", wishlisthandler.PartialUpdateWish)
 
 	return router
 }

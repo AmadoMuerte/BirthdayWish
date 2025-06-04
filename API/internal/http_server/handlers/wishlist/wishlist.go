@@ -51,6 +51,7 @@ type IWishlistHandler interface {
 	AddToWishlist(w http.ResponseWriter, r *http.Request)
 	RemoveFromWishlist(w http.ResponseWriter, r *http.Request)
 	GetShareList(w http.ResponseWriter, r *http.Request)
+	PartialUpdateWish(w http.ResponseWriter, r *http.Request)
 }
 
 func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) IWishlistHandler {
@@ -248,6 +249,62 @@ func (h *WishlistHandler) RemoveFromWishlist(w http.ResponseWriter, r *http.Requ
 	}
 
 	defer resp.Body.Close()
+
+	w.WriteHeader(resp.StatusCode)
+	io.Copy(w, resp.Body)
+}
+
+
+func (h *WishlistHandler) PartialUpdateWish(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	wishID, err := strconv.ParseInt(chi.URLParam(r, "wish_id"), 10, 64)
+	if err != nil {
+		h.log.Error("wish_id is empty")
+		render.JSON(w, r, response.Error("wish_id is empty"))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	claims, err := jwt.GetClaims(ctx)
+	if err != nil {
+		h.log.Error("failed to get claims from token", "error", err)
+		w.WriteHeader(http.StatusUnauthorized)
+		render.JSON(w, r, response.Error("invalid token"))
+		return
+	}
+
+	exists, err := h.storage.UserExistsByID(ctx, claims.UserID)
+	if err != nil || !exists {
+		fmt.Printf("user id is %d", claims.UserID)
+		h.log.Error("user does not exist", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		render.JSON(w, r, response.Error("user does not exist"))
+		return
+	}
+
+	var updateData map[string]any
+    if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
+        h.log.Error("failed to decode request body", "error", err)
+        w.WriteHeader(http.StatusBadRequest)
+        render.JSON(w, r, response.Error("invalid request body"))
+        return
+    }
+
+	headers := map[string]string{
+		"1": "Content-Type",
+		"2": "application/json",
+	}
+	
+	path := fmt.Sprintf("%s/%d/%d", h.cfg.Services.WishListAddr, wishID, claims.UserID)
+
+	resp, err := http_helper.DoRequest(ctx, "PATCH", path, &updateData, headers)
+	if err != nil {
+		h.log.Error("service call failed", "error", err)
+		render.Status(r, http.StatusBadGateway)
+		render.JSON(w, r, response.Error("service unavailable"))
+		return
+	}
 
 	w.WriteHeader(resp.StatusCode)
 	io.Copy(w, resp.Body)

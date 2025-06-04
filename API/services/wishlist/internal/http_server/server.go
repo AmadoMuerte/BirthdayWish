@@ -68,6 +68,7 @@ func (s *Server) createRouter() http.Handler {
 	router.Get("/{user_id}", wishlisthandler.GetWishlist)
 	router.Post("/", wishlisthandler.AddToWishlist)
 	router.Delete("/{wish_id}/{user_id}", wishlisthandler.RemoveFromWishlist)
+	router.Patch("/{wish_id}/{user_id}", wishlisthandler.PartialUpdateWish)
 
 	return router
 }
