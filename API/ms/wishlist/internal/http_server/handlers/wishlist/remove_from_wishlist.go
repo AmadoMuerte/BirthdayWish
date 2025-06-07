@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/pkg/response"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )

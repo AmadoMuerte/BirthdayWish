@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/jwt"
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/pkg/jwt"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/pkg/response"
 	"github.com/go-chi/render"
 	"golang.org/x/crypto/bcrypt"
 )

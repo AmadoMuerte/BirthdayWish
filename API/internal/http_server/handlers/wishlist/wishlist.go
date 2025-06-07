@@ -13,9 +13,9 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/http_server/handlers/minio"
 	http_helper "github.com/AmadoMuerte/BirthdayWish/API/internal/lib"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/pkg/jwt"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/pkg/response"
 	"github.com/AmadoMuerte/BirthdayWish/API/internal/storage"
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/jwt"
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )

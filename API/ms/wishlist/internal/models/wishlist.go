@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/models"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/pkg/models"
 	"github.com/uptrace/bun"
 )
 

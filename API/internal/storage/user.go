@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/models"
+	"github.com/AmadoMuerte/BirthdayWish/API/internal/pkg/models"
 )
 
 func (s *Storage) CreateUser(ctx context.Context, user *models.User) error {
