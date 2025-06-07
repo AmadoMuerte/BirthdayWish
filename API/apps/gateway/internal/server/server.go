@@ -90,7 +90,7 @@ func (s *Server) apiRoutes() http.Handler {
 	r.Use(jwtauth.Verifier(s.tokenAuth))
 	r.Use(jwtauth.Authenticator(s.tokenAuth))
 
-	r.Mount("/wishlist", routes.NewWishlistRouter(s.cfg, s.storage))
+	r.Mount("/wish", routes.NewWishlistRouter(s.cfg, s.storage))
 
 	return r
 }
