@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist/internal/models"
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
-	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/models"
 	"github.com/go-chi/render"
 )
 

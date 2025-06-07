@@ -4,9 +4,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/services/minio/internal/config"
-	server "github.com/AmadoMuerte/BirthdayWish/API/services/minio/internal/http_server"
-	"github.com/AmadoMuerte/BirthdayWish/API/services/minio/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/minio/internal/config"
+	server "github.com/AmadoMuerte/BirthdayWish/API/ms/minio/internal/http_server"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/minio/internal/storage"
 )
 
 func main() {

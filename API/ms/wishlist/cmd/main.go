@@ -4,9 +4,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/config"
-	server "github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/http_server"
-	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist/internal/config"
+	server "github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist/internal/http_server"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist/internal/storage"
 )
 
 func main() {

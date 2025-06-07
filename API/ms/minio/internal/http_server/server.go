@@ -8,9 +8,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/services/minio/internal/config"
-	imageHandler "github.com/AmadoMuerte/BirthdayWish/API/services/minio/internal/http_server/handlers/image_handler"
-	"github.com/AmadoMuerte/BirthdayWish/API/services/minio/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/minio/internal/config"
+	imageHandler "github.com/AmadoMuerte/BirthdayWish/API/ms/minio/internal/http_server/handlers/image_handler"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/minio/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )

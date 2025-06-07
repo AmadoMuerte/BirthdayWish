@@ -1,4 +1,4 @@
-module github.com/AmadoMuerte/BirthdayWish/API/services/wishlist
+module github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist
 
 go 1.24.3
 

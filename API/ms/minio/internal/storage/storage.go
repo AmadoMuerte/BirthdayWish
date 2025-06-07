@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/services/minio/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/minio/internal/config"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )

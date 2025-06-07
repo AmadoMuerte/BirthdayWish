@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/services/minio/internal/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/services/minio/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/minio/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/minio/internal/storage"
 )
 
 type ImageHandler struct {

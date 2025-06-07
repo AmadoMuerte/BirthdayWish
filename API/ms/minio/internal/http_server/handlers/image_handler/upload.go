@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/services/minio/internal/models"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/minio/internal/models"
 	"github.com/go-chi/render"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"

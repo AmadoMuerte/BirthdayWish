@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist/internal/storage"
 )
 
 type WishlistHandler struct {

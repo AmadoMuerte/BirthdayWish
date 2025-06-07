@@ -8,9 +8,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/http_server/handlers/wishlist"
-	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist/internal/http_server/handlers/wishlist"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )

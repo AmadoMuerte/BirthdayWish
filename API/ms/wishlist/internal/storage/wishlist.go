@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/services/wishlist/internal/models"
+	"github.com/AmadoMuerte/BirthdayWish/API/ms/wishlist/internal/models"
 )
 
 func (s *Storage) GetWishlist(ctx context.Context, userID int64) ([]models.Wishlist, error) {
