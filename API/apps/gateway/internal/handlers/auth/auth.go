@@ -30,7 +30,7 @@ type IAuthHandler interface {
 	// Refresh(w http.ResponseWriter, r *http.Request)
 }
 
-func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) *AuthHandler {
+func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) IAuthHandler {
 	tokenAuth := jwtauth.New("HS256", []byte(cfg.App.SecretKey), nil)
 	return &AuthHandler{cfg, storage, log, tokenAuth}
 }

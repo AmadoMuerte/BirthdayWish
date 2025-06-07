@@ -17,7 +17,6 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/jwt"
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 )
 
 type WishlistHandler struct {
@@ -60,31 +59,29 @@ func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) IWishli
 }
 
 func (h *WishlistHandler) GetShareList(w http.ResponseWriter, r *http.Request) {
+	op := "wishlist/getShareList"
 	ctx := r.Context()
 
 	authHeader := r.Header.Get("Authorization")
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 	if token == authHeader {
-		h.log.Error("token error")
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("internal error"))
+		h.log.Error(op+ ": token error")
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "internal error")
 		return
 	}
 
 	userID, err := h.storage.GetUserIDByToken(ctx, token)
 	if err != nil {
-		h.log.Error("userID", "error", err)
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("internal error"))
+		h.log.Error(op + ": userID", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "internal error")
 		return
 	}
 
 	path := fmt.Sprintf("%s/%d", h.cfg.Services.WishListAddr, userID)
 	resp, err := httphelper.DoRequest(ctx, "GET", path, nil, nil)
 	if err != nil {
-		h.log.Error("service call failed", "error", err)
-		render.Status(r, http.StatusBadGateway)
-		render.JSON(w, r, response.Error("service unavailable"))
+		h.log.Error(op + ": service call failed", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadGateway, "service unavailable")
 		return
 	}
 
@@ -95,19 +92,20 @@ func (h *WishlistHandler) GetShareList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
+	op := "wishlist/GetWishlist"
 	ctx := r.Context()
 
 	userID, err := strconv.ParseInt(chi.URLParam(r, "user_id"), 10, 64)
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("invalid user id"))
+		h.log.Error(op + ": invalid user id", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid user id")
 		return
 	}
 
 	claims, err := jwt.GetClaims(ctx)
 	if err != nil || claims.UserID != userID {
-		render.Status(r, http.StatusForbidden)
-		render.JSON(w, r, response.Error("access denied"))
+		h.log.Error(op + ": invalid user id", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusForbidden, "access denied")
 		return
 	}
 
@@ -115,9 +113,8 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := httphelper.DoRequest(ctx, "GET", path, nil, nil)
 	if err != nil {
-		h.log.Error("service call failed", "error", err)
-		render.Status(r, http.StatusBadGateway)
-		render.JSON(w, r, response.Error("service unavailable"))
+		h.log.Error(op + ": service call failed", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadGateway, "service unavailable")
 		return
 	}
 
@@ -128,12 +125,13 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *WishlistHandler) GetWish(w http.ResponseWriter, r *http.Request) {
+	op := "wishlist/GetWish"
 	ctx := r.Context()
 
 	wishID, err := strconv.ParseInt(chi.URLParam(r, "wish_id"), 10, 64)
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("invalid wish id"))
+		h.log.Error(op + ": invalid wish id", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid wish id")
 		return
 	}
 
@@ -143,9 +141,8 @@ func (h *WishlistHandler) GetWish(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := httphelper.DoRequest(ctx, "GET", path, nil, nil)
 	if err != nil {
-		h.log.Error("service call failed", "error", err)
-		render.Status(r, http.StatusBadGateway)
-		render.JSON(w, r, response.Error("service unavailable"))
+		h.log.Error(op + ": service call failed", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadGateway, "service unavailable")
 		return
 	}
 
@@ -157,29 +154,27 @@ func (h *WishlistHandler) GetWish(w http.ResponseWriter, r *http.Request) {
 
 
 func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) {
+	op := "wishlist/AddToWishlist"
 	ctx := r.Context()
 
 	var wishItemReq wishItemReq
 	if err := json.NewDecoder(r.Body).Decode(&wishItemReq); err != nil {
-		h.log.Error("failed to decode request body", "error", err)
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, response.Error("invalid request body"))
+		h.log.Error(op + ": failed to decode request body", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid request body")
 		return
 	}
 	defer r.Body.Close()
 
 	claims, err := jwt.GetClaims(ctx)
 	if err != nil {
-		h.log.Error("failed to get claims from token", "error", err)
-		render.Status(r, http.StatusUnauthorized)
-		render.JSON(w, r, response.Error("invalid token"))
+		h.log.Error(op + ": failed to get claims from token", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusUnauthorized, "invalid token")
 		return
 	}
 
 	if exists, err := h.storage.UserExistsByID(ctx, claims.UserID); err != nil || !exists {
-		h.log.Error("user does not exist", "user_id", claims.UserID, "error", err)
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, response.Error("user not found"))
+		h.log.Error(op + ": user does not exist", "user_id", claims.UserID, "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusUnauthorized, "user not found")
 		return
 	}
 
@@ -203,17 +198,15 @@ func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) 
 			map[string]string{"1": "application/json", "2": "Content-Type"},
 		)
 		if resp.StatusCode != 201 || err != nil {
-			h.log.Error("minio service is not create image", "error", err)
-			render.Status(r, http.StatusBadGateway)
-			render.JSON(w, r, response.Error("service unavailable"))
+			h.log.Error(op + ": filer service is not create image", "error", err)
+			response.ErrorResponseJSON(w,r, http.StatusBadGateway, "service unavailable")
 			return
 		}
 
 		var imageRecord filer.ImageRecord
 		if err := json.NewDecoder(resp.Body).Decode(&imageRecord); err != nil {
-			h.log.Error("failed to decode request body", "error", err)
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, response.Error("invalid request body"))
+			h.log.Error(op + ": failed to decode request body", "error", err)
+			response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid request body")
 			return
 		}
 		wishItemRes.ImageUrl = imageRecord.PublicURL
@@ -228,9 +221,8 @@ func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) 
 
 	resp, err = httphelper.DoRequest(ctx, "POST", path, wishItemRes, headers)
 	if err != nil {
-		h.log.Error("service call failed", "error", err)
-		render.Status(r, http.StatusBadGateway)
-		render.JSON(w, r, response.Error("service unavailable"))
+		h.log.Error(op + ": failed add wish item", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
@@ -241,30 +233,27 @@ func (h *WishlistHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *WishlistHandler) RemoveFromWishlist(w http.ResponseWriter, r *http.Request) {
+	op := "wishlist/RemoveFromWishlist"
 	ctx := r.Context()
 
 	wishID, err := strconv.ParseInt(chi.URLParam(r, "wish_id"), 10, 64)
 	if err != nil {
-		h.log.Error("wish_id is empty")
-		render.JSON(w, r, response.Error("wish_id is empty"))
-		w.WriteHeader(http.StatusBadRequest)
+		h.log.Error(op + ": wish_id is empty", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
 	claims, err := jwt.GetClaims(ctx)
 	if err != nil {
-		h.log.Error("failed to get claims from token", "error", err)
-		w.WriteHeader(http.StatusUnauthorized)
-		render.JSON(w, r, response.Error("invalid token"))
+		h.log.Error(op + ": failed to get claims from token", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
 	exists, err := h.storage.UserExistsByID(ctx, claims.UserID)
 	if err != nil || !exists {
-		fmt.Printf("user id is %d", claims.UserID)
-		h.log.Error("user does not exist", "error", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		render.JSON(w, r, response.Error("user does not exist"))
+		h.log.Error(op + ": user does not exist", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
@@ -272,9 +261,8 @@ func (h *WishlistHandler) RemoveFromWishlist(w http.ResponseWriter, r *http.Requ
 
 	resp, err := httphelper.DoRequest(ctx, "DELETE", path, nil, nil)
 	if err != nil {
-		h.log.Error("service call failed", "error", err)
-		render.Status(r, http.StatusBadGateway)
-		render.JSON(w, r, response.Error("service unavailable"))
+		h.log.Error(op + ": service call failed", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadGateway, "service unavailable")
 		return
 	}
 
@@ -286,54 +274,49 @@ func (h *WishlistHandler) RemoveFromWishlist(w http.ResponseWriter, r *http.Requ
 
 
 func (h *WishlistHandler) PartialUpdateWish(w http.ResponseWriter, r *http.Request) {
+	op := "wishlist/PartialUpdateWish"
     ctx := r.Context()
 
     bodyBytes, err := io.ReadAll(r.Body)
     if err != nil {
-        h.log.Error("failed to read request body", "error", err)
-        render.Status(r, http.StatusBadRequest)
-        render.JSON(w, r, response.Error("invalid request body"))
+		h.log.Error(op + ": failed to read request body", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid request body")
         return
     }
     defer r.Body.Close()
 
     var wishItemReq wishItemReq
     if err := json.Unmarshal(bodyBytes, &wishItemReq); err != nil {
-        h.log.Error("failed to decode request body", "error", err)
-        render.Status(r, http.StatusBadRequest)
-        render.JSON(w, r, response.Error("invalid request body"))
+		h.log.Error(op + ": failed to decode request body", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid request body")
         return
     }
 
     var updateData map[string]any
     if err := json.Unmarshal(bodyBytes, &updateData); err != nil {
-        h.log.Error("failed to decode request body", "error", err)
-        render.Status(r, http.StatusBadRequest)
-        render.JSON(w, r, response.Error("invalid request body"))
+		h.log.Error(op + ": failed to decode request body", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid request body")
         return
     }
 
     wishID, err := strconv.ParseInt(chi.URLParam(r, "wish_id"), 10, 64)
     if err != nil {
-        h.log.Error("invalid wish_id", "error", err)
-        render.JSON(w, r, response.Error("invalid wish_id"))
-        w.WriteHeader(http.StatusBadRequest)
+		h.log.Error(op + ": invalid wish_id", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid request body")
         return
     }
 
     claims, err := jwt.GetClaims(ctx)
     if err != nil {
-        h.log.Error("failed to get claims from token", "error", err)
-        w.WriteHeader(http.StatusUnauthorized)
-        render.JSON(w, r, response.Error("invalid token"))
+		h.log.Error(op + ": failed to get claims from token", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusUnauthorized, "Unauthorized")
         return
     }
 
     exists, err := h.storage.UserExistsByID(ctx, claims.UserID)
     if err != nil || !exists {
-        h.log.Error("user does not exist", "user_id", claims.UserID, "error", err)
-        w.WriteHeader(http.StatusNotFound)
-        render.JSON(w, r, response.Error("user not found"))
+		h.log.Error(op + "user does not exist", "user_id", claims.UserID, "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusNotFound, "user not found")
         return
     }
 
@@ -347,18 +330,16 @@ func (h *WishlistHandler) PartialUpdateWish(w http.ResponseWriter, r *http.Reque
             map[string]string{"Content-Type": "application/json"},
         )
         if err != nil || imageResp.StatusCode != http.StatusCreated {
-            h.log.Error("minio service failed", "error", err)
-            render.Status(r, http.StatusBadGateway)
-            render.JSON(w, r, response.Error("image service unavailable"))
+			h.log.Error(op + "filer service failed", "error", err)
+			response.ErrorResponseJSON(w,r, http.StatusBadGateway, "service unavailable")
             return
         }
         defer imageResp.Body.Close()
 
         var imageRecord filer.ImageRecord
         if err := json.NewDecoder(imageResp.Body).Decode(&imageRecord); err != nil {
-            h.log.Error("failed to decode image response", "error", err)
-            render.Status(r, http.StatusInternalServerError)
-            render.JSON(w, r, response.Error("failed to process image"))
+			h.log.Error(op + "failed to decode image response", "error", err)
+			response.ErrorResponseJSON(w,r, http.StatusInternalServerError, "service unavailable")
             return
         }
 
@@ -376,16 +357,12 @@ func (h *WishlistHandler) PartialUpdateWish(w http.ResponseWriter, r *http.Reque
         map[string]string{"Content-Type": "application/json"},
     )
     if err != nil {
-        h.log.Error("service call failed", "error", err)
-        render.Status(r, http.StatusBadGateway)
-        render.JSON(w, r, response.Error("service unavailable"))
+		h.log.Error(op + "service call failed", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusBadGateway, "service unavailable")
         return
     }
     defer resp.Body.Close()
 
-    w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
     w.WriteHeader(resp.StatusCode)
-    if _, err := io.Copy(w, resp.Body); err != nil {
-        h.log.Error("failed to write response", "error", err)
-    }
+    io.Copy(w, resp.Body)
 }
