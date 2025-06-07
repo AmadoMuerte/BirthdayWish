@@ -3,12 +3,12 @@
 db:
 	docker-compose up -d
 
-run-gateway:
-	go run cmd/main.go
+gateway:
+	go run apps/gateway/cmd/main.go
 
-run-srvc-wishlist:
-	cd ms/wishlist && go run cmd/main.go
+wishlister:
+	cd apps/wishlister && go run cmd/main.go
 
 
-run-srvc-minio:
-	cd ms/minio && go run cmd/main.go
+filer:
+	cd apps/filer && go run cmd/main.go
