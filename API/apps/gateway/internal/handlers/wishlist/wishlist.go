@@ -95,21 +95,14 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 	op := "wishlist/GetWishlist"
 	ctx := r.Context()
 
-	userID, err := strconv.ParseInt(chi.URLParam(r, "user_id"), 10, 64)
-	if err != nil {
-		h.log.Error(op + ": invalid user id", "error", err)
-		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid user id")
-		return
-	}
-
 	claims, err := jwt.GetClaims(ctx)
-	if err != nil || claims.UserID != userID {
-		h.log.Error(op + ": invalid user id", "error", err)
-		response.ErrorResponseJSON(w,r, http.StatusForbidden, "access denied")
+	if err != nil {
+		h.log.Error(op + ": failed to get claims", "error", err)
+		response.ErrorResponseJSON(w,r, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	path := fmt.Sprintf("%s/%d", h.cfg.Services.WishListAddr, userID)
+	path := fmt.Sprintf("%s/%d", h.cfg.Services.WishListAddr, claims.UserID)
 
 	resp, err := httphelper.DoRequest(ctx, "GET", path, nil, nil)
 	if err != nil {
