@@ -40,7 +40,7 @@ func (s *Server) Start() {
 	serverErr := make(chan error, 1)
 
 	go func() {
-		fmt.Printf("Server starting on %s\n", srv.Addr)
+		fmt.Printf("Gateway starting on %s\n", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			serverErr <- err
 		}

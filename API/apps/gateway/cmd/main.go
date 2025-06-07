@@ -1,13 +1,22 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/server"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/storage"
 )
 
 func main() {
-	cfg, err := config.NewConfig(nil)
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	envPath := filepath.Join(wd, "/../../.env")
+	
+	cfg, err := config.NewConfig(&envPath)
 	if err != nil {
 		panic(err)
 	}

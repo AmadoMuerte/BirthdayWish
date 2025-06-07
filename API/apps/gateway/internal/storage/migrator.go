@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"path/filepath"
+	"runtime"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -17,8 +19,12 @@ func ApplyMigrations(db *sql.DB, dbName string) error {
 		return fmt.Errorf("could not create migrate driver: %w", err)
 	}
 
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+	migrationPath := filepath.Join(basepath, "migrations")
+
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://apps/gateway/internal/storage/migrations",
+		"file://" + migrationPath,
 		dbName,
 		driver,
 	)
