@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/models"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/apimodels"
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -45,7 +45,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := models.User{
+	user := apimodels.User{
 		Name:     req.Username,
 		Password: string(hashedPassword),
 		Email:    req.Email,

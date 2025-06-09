@@ -6,10 +6,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/models"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/apimodels"
 )
 
-func (s *Storage) CreateUser(ctx context.Context, user *models.User) error {
+func (s *Storage) CreateUser(ctx context.Context, user *apimodels.User) error {
 	_, err := s.DB.NewInsert().Model(user).Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("create user: %w", err)
@@ -19,7 +19,7 @@ func (s *Storage) CreateUser(ctx context.Context, user *models.User) error {
 
 func (s *Storage) UserExists(ctx context.Context, username, email string) (bool, error) {
 	exists, err := s.DB.NewSelect().
-		Model((*models.User)(nil)).
+		Model((*apimodels.User)(nil)).
 		Where("email = ? OR name = ?", email, username).
 		Exists(ctx)
 	if err != nil {
@@ -30,7 +30,7 @@ func (s *Storage) UserExists(ctx context.Context, username, email string) (bool,
 
 func (s *Storage) UserExistsByID(ctx context.Context, userID int64) (bool, error) {
 	exists, err := s.DB.NewSelect().
-		Model((*models.User)(nil)).
+		Model((*apimodels.User)(nil)).
 		Where("id = ?", userID).
 		Exists(ctx)
 	if err != nil {
@@ -39,8 +39,8 @@ func (s *Storage) UserExistsByID(ctx context.Context, userID int64) (bool, error
 	return exists, nil
 }
 
-func (s *Storage) GetUserByUsername(ctx context.Context, name string) (models.User, error) {
-	var user models.User
+func (s *Storage) GetUserByUsername(ctx context.Context, name string) (apimodels.User, error) {
+	var user apimodels.User
 
 	err := s.DB.NewSelect().
 		Model(&user).
@@ -48,7 +48,7 @@ func (s *Storage) GetUserByUsername(ctx context.Context, name string) (models.Us
 		Scan(ctx)
 
 	if err != nil {
-		return models.User{}, err
+		return apimodels.User{}, err
 	}
 
 	return user, nil
