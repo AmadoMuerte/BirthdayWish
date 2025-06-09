@@ -16,22 +16,22 @@ type db struct {
 	Port string `required:"true" envconfig:"DB_PORT"`
 }
 
-type AppConfig struct {
+type appConfig struct {
 	Mode      string `envconfig:"RUN_MODE" default:"dev"`
 	Address   string `envconfig:"APP_ADDRESS" default:"localhost"`
 	Port      string `envconfig:"APP_PORT" default:"8080"`
 	SecretKey string `envconfig:"SECRET_KEY"`
 }
 
-type Services struct {
+type services struct {
 	WishListAddr string `envconfig:"WISHLIST_ADDRESS" default:"localhost:5057"`
 	Minio        string `envconfig:"MINLO_ADDRESS" default:"localhost:5058"`
 }
 
 type Config struct {
 	DB       db
-	App      AppConfig
-	Services Services
+	App      appConfig
+	Services services
 }
 
 var getWd = os.Getwd
