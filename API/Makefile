@@ -25,6 +25,3 @@ wishlister:
 filer:
 	cd apps/filer && go run cmd/main.go
 
-logs:
-	@mkdir -p logs
-
