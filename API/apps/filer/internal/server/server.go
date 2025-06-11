@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/config"
-	imageHandler "github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/handlers/image_handler"
+	imageHandler "github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/handlers/image"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
