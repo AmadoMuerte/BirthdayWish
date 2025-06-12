@@ -1,6 +1,6 @@
 import { createFileRoute, useSearch } from '@tanstack/react-router'
-import { Wishlist } from '../components/wishlist/wishlist'
-import { getWishlist, WishItem as WishItemType } from '../api/wishlist';
+import { Wishlist } from '../pages/wishlist/Wishlist'
+import { getWishlist, WishItem as WishItemType } from '../shared/api/wishlist';
 import { useEffect, useState } from 'react';
 
 export const Route = createFileRoute('/sharelist')({

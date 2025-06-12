@@ -29,8 +29,8 @@ function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
 }
 
 const mockdata = [
-    { icon: IconHome2, label: 'Wishlist', path: '/app/wishlist' },
-    { icon: IconPlus, label: 'Add to wishlist', path: '/app/create' },
+    { icon: IconHome2, label: 'Wishlist', path: '/app/wishes' },
+    { icon: IconPlus, label: 'Add to wishlist', path: '/app/wishes/create' },
     { icon: IconFriends, label: 'Friends', path: '/app/friends' },
 ];
 
