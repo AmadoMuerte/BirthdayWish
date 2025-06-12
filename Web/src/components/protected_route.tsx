@@ -1,5 +1,5 @@
 import { Navigate, useRouter } from '@tanstack/react-router'
-import { getTokenInfo } from '../api/token'
+import { getTokenInfo } from '../shared/api/token'
 
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {

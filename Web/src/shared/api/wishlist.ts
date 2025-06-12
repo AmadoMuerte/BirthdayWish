@@ -47,7 +47,7 @@ export async function addToWishlist(wishItem: WishItemReq) {
     const tokenInfo = getTokenInfo();
 
     try {
-        const response = await fetch(API_URL + '/api/wishlist', {
+        const response = await fetch(API_URL + '/api/wish', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -2,8 +2,8 @@ import { Link } from '@tanstack/react-router';
 import Button from '../button/button';
 import styles from './auth_form.module.css';
 import { useState } from 'react';
-import { AuthResponse, Form, loginUser, registerUser } from '../../api/auth'
-import validateEmail, { validatePassword, validateUsername } from '../../lib/validator';
+import { AuthResponse, Form, loginUser, registerUser } from '../../shared/api/auth'
+import validateEmail, { validatePassword, validateUsername } from '../../shared/lib/validator';
 
 interface Props {
     isRegistration: boolean;

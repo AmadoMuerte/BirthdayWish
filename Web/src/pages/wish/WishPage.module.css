@@ -1,0 +1,55 @@
+.wish-page {
+  margin: 120px 0;
+  padding: 32px;
+  background-image: linear-gradient(#20243dd5, #20243d33);
+  background-clip: border-box;
+  border-radius: 15px;
+
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-template-columns: 2fr 3fr;
+  gap: 32px;
+
+  .wish-page__header {
+    grid-column: span 2; 
+  }
+
+  .wish-page__img {
+    width: 100%;
+    border-radius: 12px;
+  }
+}
+
+.wish-info {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .wish-info__name {
+    color: #fff;
+    font-size: 24px;
+  }
+
+  .wish-info__link {
+    margin-top: auto;
+  }
+}
+
+.wish-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .wish-price__label {
+    font-size: 1rem;
+    color: #a0a0a0;
+  }
+
+  .wish-price__value {
+    flex: 1;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #4dabf7;;
+  }
+}
