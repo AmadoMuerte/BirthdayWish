@@ -17,7 +17,6 @@ type WishlistHandler struct {
 type IWishlistHandler interface {
 	GetWishlist(w http.ResponseWriter, r *http.Request)
 	AddWish(w http.ResponseWriter, r *http.Request)
-	DeleteWish(w http.ResponseWriter, r *http.Request)
 	UpdateWish(w http.ResponseWriter, r *http.Request)
 	GetWish(w http.ResponseWriter, r *http.Request)
 }

@@ -8,11 +8,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
 	authhandler "github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers/auth"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers/wishlist"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/routes"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/redis"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth/v5"
@@ -21,12 +22,13 @@ import (
 type Server struct {
 	cfg       *config.Config
 	storage   *storage.Storage
+	RedisClient *redis.RDB
 	tokenAuth *jwtauth.JWTAuth
 }
 
-func New(cfg *config.Config, storage *storage.Storage) *Server {
+func New(cfg *config.Config, storage *storage.Storage, rdb *redis.RDB) *Server {
 	tokenAuth := jwtauth.New("HS256", []byte(cfg.App.SecretKey), nil)
-	return &Server{cfg, storage, tokenAuth}
+	return &Server{cfg, storage, rdb, tokenAuth}
 }
 
 func (s *Server) Start() {
@@ -76,7 +78,7 @@ func (s *Server) createRouter() http.Handler {
 func (s *Server) authRoutes() http.Handler {
 	r := chi.NewRouter()
 	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
-	wishhandler := wishlist.New(s.cfg, s.storage, slog.Default())
+	wishhandler := wishlist.New(s.cfg, s.storage, s.RedisClient, slog.Default())
 
 	r.Post("/sign_up", authHandler.SignUp)
 	r.Post("/login", authHandler.SignIn)
@@ -90,7 +92,7 @@ func (s *Server) apiRoutes() http.Handler {
 	r.Use(jwtauth.Verifier(s.tokenAuth))
 	r.Use(jwtauth.Authenticator(s.tokenAuth))
 
-	r.Mount("/wish", routes.NewWishlistRouter(s.cfg, s.storage))
+	r.Mount("/wish", routes.NewWishlistRouter(s.cfg, s.storage, s.RedisClient))
 
 	return r
 }
@@ -98,7 +100,7 @@ func (s *Server) apiRoutes() http.Handler {
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 

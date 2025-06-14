@@ -5,13 +5,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/redis"
 )
 
 type WishlistHandler struct {
 	cfg     *config.Config
 	storage *storage.Storage
+	RedisClient *redis.RDB
 	log     *slog.Logger
 }
 
@@ -44,8 +46,8 @@ type IWishlistHandler interface {
 	GetShareList(w http.ResponseWriter, r *http.Request)
 }
 
-func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) IWishlistHandler {
-	return &WishlistHandler{cfg, storage, log}
+func New(cfg *config.Config, storage *storage.Storage, rdb *redis.RDB, log *slog.Logger) IWishlistHandler {
+	return &WishlistHandler{cfg, storage, rdb, log}
 }
 
 

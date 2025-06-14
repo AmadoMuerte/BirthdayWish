@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/config"
 	"github.com/go-chi/jwtauth/v5"
 )
 

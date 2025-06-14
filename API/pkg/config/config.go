@@ -16,6 +16,13 @@ type db struct {
 	Port string `required:"true" envconfig:"DB_PORT"`
 }
 
+type redis struct {
+	Path string `required:"true" envconfig:"REDIS_PATH"`
+	Port string `required:"true" envconfig:"REDIS_PORT"`
+	Pass string `required:"true" envconfig:"REDIS_PASS"`
+	User string `required:"true" envconfig:"REDIS_USER"`
+}
+
 type appConfig struct {
 	Mode      string `envconfig:"RUN_MODE" default:"dev"`
 	Address   string `envconfig:"APP_ADDRESS" default:"localhost"`
@@ -30,6 +37,7 @@ type services struct {
 
 type Config struct {
 	DB       db
+	Redis    redis
 	App      appConfig
 	Services services
 }

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/config"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
