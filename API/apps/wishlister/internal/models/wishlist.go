@@ -14,8 +14,7 @@ type Wishlist struct {
 	UserID    int64     `bun:"user_id,notnull" json:"user_id"`
 	Link      string    `bun:"link" json:"link"`
 	Price     float64   `bun:"price,type:decimal(10,2)" json:"price"`
-	ImageUrl  string    `bun:"image_url" json:"image_url"`
-	ImageName string    `bun:"image_name" json:"image_name"`
+	Image     string    `bun:"image_url" json:"image"`
 	Name      string    `bun:"name" json:"name"`
 	CreatedAt time.Time `bun:"created_at,notnull,default:now()" json:"created_at"`
 	UpdatedAt time.Time `bun:"updated_at,notnull,default:now()" json:"updated_at"`
