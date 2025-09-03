@@ -9,7 +9,6 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/storage"
 )
 
-a
 func main() {
 	wd, err := os.Getwd()
 	if err != nil {
