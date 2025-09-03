@@ -16,8 +16,8 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 
 	claims, err := jwt.GetClaims(ctx)
 	if err != nil {
-		h.log.Error(op + ": failed to get claims", "error", err)
-		response.ErrorResponseJSON(w,r, http.StatusInternalServerError, "internal server error")
+		h.log.Error(op+": failed to get claims", "error", err)
+		response.ErrorResponseJSON(w, r, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
@@ -25,8 +25,8 @@ func (h *WishlistHandler) GetWishlist(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := httphelper.DoRequest(ctx, "GET", path, nil, nil)
 	if err != nil {
-		h.log.Error(op + ": service call failed", "error", err)
-		response.ErrorResponseJSON(w,r, http.StatusBadGateway, "service unavailable")
+		h.log.Error(op+": service call failed", "error", err)
+		response.ErrorResponseJSON(w, r, http.StatusBadGateway, "service unavailable")
 		return
 	}
 

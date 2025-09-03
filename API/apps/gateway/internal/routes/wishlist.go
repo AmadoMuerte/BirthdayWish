@@ -13,7 +13,7 @@ import (
 func NewWishlistRouter(cfg *config.Config, storage *storage.Storage, rdb *redis.RDB) *chi.Mux {
 	router := chi.NewRouter()
 
-	wishlisthandler := wishlist.New(cfg, storage,  rdb, slog.Default())
+	wishlisthandler := wishlist.New(cfg, storage, rdb, slog.Default())
 	router.Get("/{wish_id}", wishlisthandler.GetWish)
 	router.Post("/", wishlisthandler.AddWish)
 	router.Patch("/{wish_id}", wishlisthandler.UpdateWish)

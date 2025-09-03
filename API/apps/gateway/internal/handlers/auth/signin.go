@@ -39,13 +39,11 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Authorization", "Bearer "+tokenString)
-	
+
 	response.SuccessResponse(w, r, http.StatusOK, map[string]any{
 		"id":    user.ID,
 		"email": user.Email,
 		"name":  user.Name,
 		"token": tokenString,
 	})
-
-	return
 }

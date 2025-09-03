@@ -15,8 +15,8 @@ type TokenResponse struct {
 }
 
 type ErrorResponse struct {
-    Message string `json:"message,omitempty"`
-    Details string `json:"details,omitempty"`
+	Message string `json:"message,omitempty"`
+	Details string `json:"details,omitempty"`
 }
 
 func Error(msg string) MessageResponse {
@@ -26,18 +26,18 @@ func Error(msg string) MessageResponse {
 }
 
 func ErrorResponseJSON(w http.ResponseWriter, r *http.Request, status int, message string) {
-    render.Status(r, status)
-    render.JSON(w, r, ErrorResponse{
-        Message: message,
-    })
+	render.Status(r, status)
+	render.JSON(w, r, ErrorResponse{
+		Message: message,
+	})
 }
 
 func ErrorResponseWithDetails(w http.ResponseWriter, r *http.Request, status int, message, details string) {
-    render.Status(r, status)
-    render.JSON(w, r, ErrorResponse{
-        Message: message,
-        Details: details,
-    })
+	render.Status(r, status)
+	render.JSON(w, r, ErrorResponse{
+		Message: message,
+		Details: details,
+	})
 }
 
 func Success(msg string) MessageResponse {

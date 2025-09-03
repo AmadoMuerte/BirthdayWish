@@ -10,8 +10,6 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/response"
 )
 
-
-
 func (h *WishlistHandler) GetShareList(w http.ResponseWriter, r *http.Request) {
 	op := "wishlist/getShareList"
 	ctx := r.Context()
@@ -19,23 +17,23 @@ func (h *WishlistHandler) GetShareList(w http.ResponseWriter, r *http.Request) {
 	authHeader := r.Header.Get("Authorization")
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 	if token == authHeader {
-		h.log.Error(op+ ": token error")
-		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "internal error")
+		h.log.Error(op + ": token error")
+		response.ErrorResponseJSON(w, r, http.StatusBadRequest, "internal error")
 		return
 	}
 
 	userID, err := h.storage.GetUserIDByToken(ctx, token)
 	if err != nil {
-		h.log.Error(op + ": userID", "error", err)
-		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "internal error")
+		h.log.Error(op+": userID", "error", err)
+		response.ErrorResponseJSON(w, r, http.StatusBadRequest, "internal error")
 		return
 	}
 
 	path := fmt.Sprintf("%s/%d", h.cfg.Services.WishListAddr, userID)
 	resp, err := httphelper.DoRequest(ctx, "GET", path, nil, nil)
 	if err != nil {
-		h.log.Error(op + ": service call failed", "error", err)
-		response.ErrorResponseJSON(w,r, http.StatusBadGateway, "service unavailable")
+		h.log.Error(op+": service call failed", "error", err)
+		response.ErrorResponseJSON(w, r, http.StatusBadGateway, "service unavailable")
 		return
 	}
 

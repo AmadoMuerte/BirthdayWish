@@ -20,10 +20,10 @@ import (
 )
 
 type Server struct {
-	cfg       *config.Config
-	storage   *storage.Storage
+	cfg         *config.Config
+	storage     *storage.Storage
 	RedisClient *redis.RDB
-	tokenAuth *jwtauth.JWTAuth
+	tokenAuth   *jwtauth.JWTAuth
 }
 
 func New(cfg *config.Config, storage *storage.Storage, rdb *redis.RDB) *Server {

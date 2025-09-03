@@ -18,8 +18,8 @@ func (h *WishlistHandler) GetWish(w http.ResponseWriter, r *http.Request) {
 
 	wishID, err := strconv.ParseInt(chi.URLParam(r, "wish_id"), 10, 64)
 	if err != nil {
-		h.log.Error(op + ": invalid wish id", "error", err)
-		response.ErrorResponseJSON(w,r, http.StatusBadRequest, "invalid wish id")
+		h.log.Error(op+": invalid wish id", "error", err)
+		response.ErrorResponseJSON(w, r, http.StatusBadRequest, "invalid wish id")
 		return
 	}
 
@@ -29,8 +29,8 @@ func (h *WishlistHandler) GetWish(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := httphelper.DoRequest(ctx, "GET", path, nil, nil)
 	if err != nil {
-		h.log.Error(op + ": service call failed", "error", err)
-		response.ErrorResponseJSON(w,r, http.StatusBadGateway, "service unavailable")
+		h.log.Error(op+": service call failed", "error", err)
+		response.ErrorResponseJSON(w, r, http.StatusBadGateway, "service unavailable")
 		return
 	}
 

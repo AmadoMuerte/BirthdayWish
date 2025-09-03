@@ -24,7 +24,7 @@ func ApplyMigrations(db *sql.DB, dbName string) error {
 	migrationPath := filepath.Join(basepath, "migrations")
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://" + migrationPath,
+		"file://"+migrationPath,
 		dbName,
 		driver,
 	)
