@@ -7,7 +7,7 @@ interface FormData {
   name: string
   price: number | undefined
   link: string
-  image_data: string | null
+  image: string | null
   image_type: string | null
 }
 
@@ -24,7 +24,7 @@ export const CreateForm: React.FC<CreateFormProps> = ({ initialData }) => {
       name: '',
       price: undefined,
       link: '',
-      image_data: null,
+      image: null,
       image_type: null
     }
   )
@@ -45,7 +45,7 @@ export const CreateForm: React.FC<CreateFormProps> = ({ initialData }) => {
         const result = reader.result as string
         setFormData((prev) => ({
           ...prev,
-          image_data: result.split(',')[1],
+          image: result.split(',')[1],
           image_type: file.type,
         }))
         setImagePreview(result)
@@ -67,7 +67,7 @@ export const CreateForm: React.FC<CreateFormProps> = ({ initialData }) => {
         const result = reader.result as string
         setFormData((prev) => ({
           ...prev,
-          image_data: result.split(',')[1],
+          image: result.split(',')[1],
           image_type: file.type
         }))
         setImagePreview(result)
@@ -92,7 +92,7 @@ export const CreateForm: React.FC<CreateFormProps> = ({ initialData }) => {
     const res = addToWishlist({
       price: Number(formData.price),
       link: formData.link,
-      image_data: formData.image_data as string,
+      image: formData.image as string,
       image_type: formData.image_type as string,
       name: formData.name
     })

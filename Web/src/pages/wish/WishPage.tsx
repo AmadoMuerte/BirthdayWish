@@ -38,7 +38,7 @@ export const WishPage: React.FC<WishProps> = ({ id }) => {
         </div>
         <img
           className={styles['wish-page__img']}
-          src={data?.image_url}
+          src={data?.image}
           alt={data?.name}
         />
         <div className={styles['wish-page__info']}>

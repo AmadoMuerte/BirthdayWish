@@ -4,7 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export type WishItem = {
     id: number;
-    image_url: string;
+    image: string;
     image_name: string;
     link: string;
     name: string;
@@ -16,7 +16,7 @@ export type WishItem = {
 export type WishItemReq = {
     price: number;
     link: string;
-    image_data: string;
+    image: string;
     image_type: string;
     name: string;
 }

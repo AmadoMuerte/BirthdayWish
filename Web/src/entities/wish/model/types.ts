@@ -3,7 +3,7 @@ export interface Wish {
   user_id: number;
   link: string;
   price: number;
-  image_url: string;
+  image: string;
   image_name: string;
   name: string;
   created_at: string;

@@ -18,7 +18,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish }) => {
     >
       <div className={styles['wish-card__image']}>
         <img
-          src={wish.image_url ? wish.image_url : wishItemImage}
+          src={wish.image ? wish.image : wishItemImage}
           alt={wish.name}
         />
       </div>
