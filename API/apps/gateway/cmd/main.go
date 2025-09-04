@@ -11,6 +11,11 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/redis"
 )
 
+// @title Gateway API
+// @version 1.0
+// @description API Gateway для BirthdayWish
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
 	wd, err := os.Getwd()
 	if err != nil {

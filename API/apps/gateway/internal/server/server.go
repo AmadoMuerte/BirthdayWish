@@ -12,11 +12,13 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers/wishlist"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/routes"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/storage"
+	_ "github.com/AmadoMuerte/BirthdayWish/API/docs/dateway"
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/redis"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth/v5"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Server struct {
@@ -71,6 +73,7 @@ func (s *Server) createRouter() http.Handler {
 
 	router.Mount("/auth", s.authRoutes())
 	router.Mount("/api", s.apiRoutes())
+	router.Mount("/docs", s.apiSwagger())
 
 	return router
 }
@@ -93,6 +96,16 @@ func (s *Server) apiRoutes() http.Handler {
 	r.Use(jwtauth.Authenticator(s.tokenAuth))
 
 	r.Mount("/wish", routes.NewWishlistRouter(s.cfg, s.storage, s.RedisClient))
+
+	return r
+}
+
+func (s *Server) apiSwagger() http.Handler {
+	r := chi.NewRouter()
+
+	r.Get("/*", httpSwagger.Handler(
+		httpSwagger.URL("/docs/swagger.json"),
+	))
 
 	return r
 }
