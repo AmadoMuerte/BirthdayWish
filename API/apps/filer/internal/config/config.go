@@ -17,7 +17,7 @@ type MinIOConfig struct {
 	UseSSL      bool          `envconfig:"MINIO_USE_SSL" default:"false"`
 	APIPort     string        `envconfig:"MINIO_API_PORT" default:"9000"`
 	ConsolePort string        `envconfig:"MINIO_CONSOLE_PORT" default:"9001"`
-	Timeout     time.Duration `envconfig:"MINIO_TIMEOUT" default:"5m`
+	Timeout     time.Duration `envconfig:"MINIO_TIMEOUT" default:"5m"`
 }
 
 type AppConfig struct {
