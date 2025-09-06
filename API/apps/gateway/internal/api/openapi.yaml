@@ -1,0 +1,27 @@
+openapi: 3.0.3
+info:
+  title: BirthdayWish API
+  version: 1.0.0
+  description: API для управления списками желаний
+servers:
+  - url: http://localhost:3030/api/v1
+    description: Development server
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Проверка состояния сервиса
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time

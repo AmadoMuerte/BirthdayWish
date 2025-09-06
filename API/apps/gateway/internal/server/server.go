@@ -3,34 +3,29 @@ package server
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
-	authhandler "github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers/auth"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers/wishlist"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/routes"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
+	api "github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/gen"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/storage"
-	_ "github.com/AmadoMuerte/BirthdayWish/API/docs/dateway"
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/redis"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth/v5"
-	httpSwagger "github.com/swaggo/http-swagger"
+	"github.com/mvrilo/go-redoc"
 )
 
 type Server struct {
-	cfg         *config.Config
-	storage     *storage.Storage
-	RedisClient *redis.RDB
-	tokenAuth   *jwtauth.JWTAuth
+	cfg       *config.Config
+	storage   *storage.Storage
+	tokenAuth *jwtauth.JWTAuth
 }
 
-func New(cfg *config.Config, storage *storage.Storage, rdb *redis.RDB) *Server {
+func New(cfg *config.Config, storage *storage.Storage) *Server {
 	tokenAuth := jwtauth.New("HS256", []byte(cfg.App.SecretKey), nil)
-	return &Server{cfg, storage, rdb, tokenAuth}
+	return &Server{cfg, storage, tokenAuth}
 }
 
 func (s *Server) Start() {
@@ -73,39 +68,56 @@ func (s *Server) createRouter() http.Handler {
 
 	router.Mount("/auth", s.authRoutes())
 	router.Mount("/api", s.apiRoutes())
-	router.Mount("/docs", s.apiSwagger())
+
+	if s.cfg.App.Mode == "dev" {
+		router.Mount("/docs", s.redocRoutes())
+	}
 
 	return router
 }
 
+func (s *Server) redocRoutes() http.Handler {
+	r := chi.NewRouter()
+
+	doc := redoc.Redoc{
+		Title:       "BirthdayWish API",
+		Description: "Gateway API for BirthdayWish",
+		SpecFile:    "internal/api/openapi.yaml",
+		SpecPath:    "/docs/openapi.yaml",
+		DocsPath:    "/docs",
+	}
+
+	r.Get("/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "internal/api/openapi.yaml")
+	})
+
+	r.Get("/", doc.Handler())
+
+	return r
+}
+
 func (s *Server) authRoutes() http.Handler {
 	r := chi.NewRouter()
-	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
-	wishhandler := wishlist.New(s.cfg, s.storage, s.RedisClient, slog.Default())
+	// authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
+	// wishhandler := wishlist.New(s.cfg, s.storage, s.RedisClient, slog.Default())
 
-	r.Post("/sign_up", authHandler.SignUp)
-	r.Post("/login", authHandler.SignIn)
-	r.Get("/get_wishlist", wishhandler.GetShareList)
+	// r.Post("/sign_up", authHandler.SignUp)
+	// r.Post("/login", authHandler.SignIn)
+	// r.Get("/get_wishlist", wishhandler.GetShareList)
 	return r
 }
 
 func (s *Server) apiRoutes() http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(jwtauth.Verifier(s.tokenAuth))
-	r.Use(jwtauth.Authenticator(s.tokenAuth))
+	apiImpl := handlers.NewAPIImplementation()
+	apiHandler := api.Handler(apiImpl)
 
-	r.Mount("/wish", routes.NewWishlistRouter(s.cfg, s.storage, s.RedisClient))
+	r.Mount("/v1", apiHandler)
 
-	return r
-}
-
-func (s *Server) apiSwagger() http.Handler {
-	r := chi.NewRouter()
-
-	r.Get("/*", httpSwagger.Handler(
-		httpSwagger.URL("/docs/swagger.json"),
-	))
+	protected := chi.NewRouter()
+	protected.Use(jwtauth.Verifier(s.tokenAuth))
+	protected.Use(jwtauth.Authenticator(s.tokenAuth))
 
 	return r
 }
