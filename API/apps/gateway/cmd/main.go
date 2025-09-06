@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/logger"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/server"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/storage"
 )
@@ -28,7 +29,9 @@ func main() {
 		panic(err)
 	}
 
-	server := server.New(cfg, storage)
+	log := logger.SetupLogger(cfg.App.Mode)
+
+	server := server.New(cfg, storage, log)
 	server.Start()
 
 	defer storage.Close()

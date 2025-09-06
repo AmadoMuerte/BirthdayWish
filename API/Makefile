@@ -3,6 +3,9 @@
 db:
 	podman compose up -d
 
+metrics:
+	podman compose -f docker-compose.monitoring.yml up -d
+
 # # need to install parallel: 
 # # brew install parallel 
 # # sudo apt install parallel
