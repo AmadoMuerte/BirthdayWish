@@ -2,26 +2,260 @@ openapi: 3.0.3
 info:
   title: BirthdayWish API
   version: 1.0.0
-  description: API для управления списками желаний
+  description: API for managing wishlists
 servers:
   - url: http://localhost:3030/api/v1
     description: Development server
-paths:
+
+paths:  
   /health:
     get:
       summary: Health check
-      description: Проверка состояния сервиса
+      description: Check if the server is running
+      tags:
+        - Health
       responses:
         '200':
-          description: Service is healthy
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/signup:
+    post:
+      summary: User registration
+      description: Create a new user account
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignUpResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      summary: User login
+      description: Authenticate user and get JWT token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignInResponse'
+          headers:
+            Authorization:
+              schema:
+                type: string
+              description: JWT token in Bearer format
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /test-auth:
+    get:
+      summary: Test authentication
+      description: Test endpoint to verify JWT token authentication
+      tags:
+        - Authentication
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Authentication successful
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  status:
+                  message:
                     type: string
-                    example: "healthy"
-                  timestamp:
-                    type: string
-                    format: date-time
+                    example: "Authentication successful"
+                  claims:
+                    type: object
+                    description: JWT claims
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    SignUpRequest:
+      type: object
+      required:
+        - username
+        - password
+        - email
+      properties:
+        username:
+          type: string
+          description: Username (3-20 characters, letters, numbers, _ and - only)
+          example: "john_doe"
+          minLength: 3
+          maxLength: 20
+        password:
+          type: string
+          description: Password (8-20 characters, letters, numbers and special characters allowed)
+          example: "SecurePass123!"
+          minLength: 8
+          maxLength: 20
+        email:
+          type: string
+          format: email
+          description: Email address
+          example: "john@example.com"
+
+    SignUpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "User created successfully"
+        userId:
+          type: integer
+          format: int64
+          example: 123
+
+    SignInRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: Username
+          example: "john_doe"
+        password:
+          type: string
+          description: Password
+          example: "SecurePass123!"
+
+    SignInResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT authentication token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        exp:
+          type: string
+          format: date-time
+          description: Token expiration time
+          example: "2024-01-15T10:30:00Z"
+        userId:
+          type: integer
+          format: int64
+          example: 123
+        email:
+          type: string
+          description: User email
+          example: "john@example.com"
+        name:
+          type: string
+          example: "john_doe"
+
+    ProfileResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+          example: 123
+        username:
+          type: string
+          example: "john_doe"
+        email:
+          type: string
+          example: "john@example.com"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Authentication failed"
+        code:
+          type: integer
+          example: 400
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+
+security:
+  - BearerAuth: []

@@ -6,31 +6,125 @@ package api
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/base64"
 	"fmt"
 	"net/http"
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
+
+const (
+	BearerAuthScopes = "BearerAuth.Scopes"
+)
+
+// ErrorResponse defines model for ErrorResponse.
+type ErrorResponse struct {
+	Code    *int    `json:"code,omitempty"`
+	Error   *bool   `json:"error,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
+// HealthResponse defines model for HealthResponse.
+type HealthResponse struct {
+	Status    *string    `json:"status,omitempty"`
+	Timestamp *time.Time `json:"timestamp,omitempty"`
+}
+
+// SignInRequest defines model for SignInRequest.
+type SignInRequest struct {
+	// Password Password
+	Password string `json:"password"`
+
+	// Username Username
+	Username string `json:"username"`
+}
+
+// SignInResponse defines model for SignInResponse.
+type SignInResponse struct {
+	// Email User email
+	Email *string `json:"email,omitempty"`
+
+	// Exp Token expiration time
+	Exp  *time.Time `json:"exp,omitempty"`
+	Name *string    `json:"name,omitempty"`
+
+	// Token JWT authentication token
+	Token  *string `json:"token,omitempty"`
+	UserId *int64  `json:"userId,omitempty"`
+}
+
+// SignUpRequest defines model for SignUpRequest.
+type SignUpRequest struct {
+	// Email Email address
+	Email openapi_types.Email `json:"email"`
+
+	// Password Password (8-20 characters, letters, numbers and special characters allowed)
+	Password string `json:"password"`
+
+	// Username Username (3-20 characters, letters, numbers, _ and - only)
+	Username string `json:"username"`
+}
+
+// SignUpResponse defines model for SignUpResponse.
+type SignUpResponse struct {
+	Message *string `json:"message,omitempty"`
+	UserId  *int64  `json:"userId,omitempty"`
+}
+
+// PostAuthLoginJSONRequestBody defines body for PostAuthLogin for application/json ContentType.
+type PostAuthLoginJSONRequestBody = SignInRequest
+
+// PostAuthSignupJSONRequestBody defines body for PostAuthSignup for application/json ContentType.
+type PostAuthSignupJSONRequestBody = SignUpRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// User login
+	// (POST /auth/login)
+	PostAuthLogin(w http.ResponseWriter, r *http.Request)
+	// User registration
+	// (POST /auth/signup)
+	PostAuthSignup(w http.ResponseWriter, r *http.Request)
 	// Health check
 	// (GET /health)
 	GetHealth(w http.ResponseWriter, r *http.Request)
+	// Test authentication
+	// (GET /test-auth)
+	GetTestAuth(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
 
+// User login
+// (POST /auth/login)
+func (_ Unimplemented) PostAuthLogin(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// User registration
+// (POST /auth/signup)
+func (_ Unimplemented) PostAuthSignup(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // Health check
 // (GET /health)
 func (_ Unimplemented) GetHealth(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Test authentication
+// (GET /test-auth)
+func (_ Unimplemented) GetTestAuth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -43,11 +137,77 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(http.Handler) http.Handler
 
+// PostAuthLogin operation middleware
+func (siw *ServerInterfaceWrapper) PostAuthLogin(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAuthLogin(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PostAuthSignup operation middleware
+func (siw *ServerInterfaceWrapper) PostAuthSignup(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostAuthSignup(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 // GetHealth operation middleware
 func (siw *ServerInterfaceWrapper) GetHealth(w http.ResponseWriter, r *http.Request) {
 
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetHealth(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetTestAuth operation middleware
+func (siw *ServerInterfaceWrapper) GetTestAuth(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetTestAuth(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -171,7 +331,16 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/auth/login", wrapper.PostAuthLogin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/auth/signup", wrapper.PostAuthSignup)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/health", wrapper.GetHealth)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/test-auth", wrapper.GetTestAuth)
 	})
 
 	return r
@@ -180,13 +349,26 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

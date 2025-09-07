@@ -151,9 +151,7 @@ func (s *Server) createRouter() http.Handler {
 	router.Use(s.metricsMiddleware)
 
 	router.Handle("/metrics", promhttp.Handler())
-
-	router.Mount("/auth", s.authRoutes())
-	router.Mount("/api", s.apiRoutes())
+	router.Mount("/api/v1", s.apiRoutes())
 
 	if s.cfg.App.Mode == "dev" {
 		router.Mount("/docs", s.redocRoutes())
@@ -186,28 +184,22 @@ func (s *Server) redocRoutes() http.Handler {
 	return r
 }
 
-func (s *Server) authRoutes() http.Handler {
-	r := chi.NewRouter()
-	// authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
-	// wishhandler := wishlist.New(s.cfg, s.storage, s.RedisClient, slog.Default())
-
-	// r.Post("/sign_up", authHandler.SignUp)
-	// r.Post("/login", authHandler.SignIn)
-	// r.Get("/get_wishlist", wishhandler.GetShareList)
-	return r
-}
-
 func (s *Server) apiRoutes() http.Handler {
 	r := chi.NewRouter()
+	apiImpl := handlers.NewAPIImplementation(s.cfg, s.storage, s.log, s.tokenAuth)
 
-	apiImpl := handlers.NewAPIImplementation()
-	apiHandler := api.Handler(apiImpl)
+	r.Group(func(r chi.Router) {
+		r.Post("/auth/login", apiImpl.PostAuthLogin)
+		r.Post("/auth/signup", apiImpl.PostAuthSignup)
+	})
 
-	r.Mount("/v1", apiHandler)
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(s.tokenAuth))
+		r.Use(jwtauth.Authenticator(s.tokenAuth))
 
-	protected := chi.NewRouter()
-	protected.Use(jwtauth.Verifier(s.tokenAuth))
-	protected.Use(jwtauth.Authenticator(s.tokenAuth))
+		apiHandler := api.Handler(apiImpl)
+		r.Mount("/", apiHandler)
+	})
 
 	return r
 }
