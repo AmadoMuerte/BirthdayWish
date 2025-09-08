@@ -10,11 +10,17 @@ import (
 
 type Config struct {
 	App struct {
+		AuthServicePort string `envconfig:"AUTH_SERVICE_PORT" default:"5094"`
+		Host            string `envconfig:"APP_ADDRESS" default:"0.0.0.0"`
 		Mode            string `envconfig:"RUN_MODE" default:"dev"`
-		Address         string `envconfig:"APP_ADDRESS" default:"localhost"`
-		Port            string `envconfig:"APP_PORT" default:"3030"`
 		SecretKey       string `envconfig:"SECRET_KEY" default:"bibibibiba"`
-		AuthServicePort string `envconfig:"AUTH_SERVICE_PORT" default:"50051"`
+	}
+	DB struct {
+		Host string `envconfig:"DB_HOST" default:"localhost"`
+		Name string `envconfig:"AUTH_DB_NAME" default:"users_service"`
+		User string `envconfig:"AUTH_DB_USER" default:"postgres"`
+		Pass string `envconfig:"AUTH_DB_PASS" default:"postgres"`
+		Port string `envconfig:"AUTH_DB_PORT" default:"5433"`
 	}
 }
 

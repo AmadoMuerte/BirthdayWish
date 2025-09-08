@@ -1,4 +1,4 @@
-CREATE TABLE share_wishlist_access (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     created_at timestamp
     with
@@ -6,6 +6,9 @@ CREATE TABLE share_wishlist_access (
         updated_at timestamp
     with
         time zone,
-        user_id integer NOT NULL,
-        access_token text NOT NULL
+        email text NOT NULL,
+        name text NOT NULL,
+        age integer,
+        gender text,
+        password text
 );

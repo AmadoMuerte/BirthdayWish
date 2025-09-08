@@ -8,101 +8,33 @@ import (
 	"os"
 	"time"
 
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/client"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
 	api "github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/gen"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/mvrilo/go-redoc"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Server struct {
 	cfg            *config.Config
-	storage        *storage.Storage
 	tokenAuth      *jwtauth.JWTAuth
 	log            *slog.Logger
+	authClient     *client.AuthClient
 	requestCounter prometheus.Counter
 	responseTime   prometheus.Histogram
 	errorCounter   prometheus.Counter
 	activeRequests prometheus.Gauge
 }
 
-func New(cfg *config.Config, storage *storage.Storage, log *slog.Logger) *Server {
+func New(cfg *config.Config, log *slog.Logger, authClient *client.AuthClient) *Server {
 	tokenAuth := jwtauth.New("HS256", []byte(cfg.App.SecretKey), nil)
-	server := &Server{cfg, storage, tokenAuth, log, nil, nil, nil, nil}
+	server := &Server{cfg, tokenAuth, log, authClient, nil, nil, nil, nil}
 	server.initMetrics()
 	return server
-}
-
-func (s *Server) initMetrics() {
-	s.requestCounter = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "http_requests_total",
-		Help: "Total number of HTTP requests",
-		ConstLabels: prometheus.Labels{
-			"service": "gateway",
-			"version": "1.0",
-		},
-	})
-
-	s.responseTime = promauto.NewHistogram(prometheus.HistogramOpts{
-		Name:    "http_request_duration_seconds",
-		Help:    "Duration of HTTP requests",
-		Buckets: []float64{0.1, 0.5, 1, 2, 5, 10},
-		ConstLabels: prometheus.Labels{
-			"service": "gateway",
-		},
-	})
-
-	s.errorCounter = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "http_errors_total",
-		Help: "Total number of HTTP errors",
-		ConstLabels: prometheus.Labels{
-			"service": "gateway",
-		},
-	})
-
-	s.activeRequests = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "http_requests_active",
-		Help: "Number of active HTTP requests",
-		ConstLabels: prometheus.Labels{
-			"service": "gateway",
-		},
-	})
-}
-
-func (s *Server) metricsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		s.activeRequests.Inc()
-		defer s.activeRequests.Dec()
-		s.requestCounter.Inc()
-
-		rw := &responseWriter{w, http.StatusOK}
-
-		next.ServeHTTP(rw, r)
-
-		duration := time.Since(start).Seconds()
-		s.responseTime.Observe(duration)
-
-		if rw.statusCode >= 400 {
-			s.errorCounter.Inc()
-		}
-	})
-}
-
-type responseWriter struct {
-	http.ResponseWriter
-	statusCode int
-}
-
-func (rw *responseWriter) WriteHeader(code int) {
-	rw.statusCode = code
-	rw.ResponseWriter.WriteHeader(code)
 }
 
 func (s *Server) Start() {
@@ -164,29 +96,9 @@ func (s *Server) createRouter() http.Handler {
 	return router
 }
 
-func (s *Server) redocRoutes() http.Handler {
-	r := chi.NewRouter()
-
-	doc := redoc.Redoc{
-		Title:       "BirthdayWish API",
-		Description: "Gateway API for BirthdayWish",
-		SpecFile:    "internal/api/openapi.yaml",
-		SpecPath:    "/docs/openapi.yaml",
-		DocsPath:    "/docs",
-	}
-
-	r.Get("/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "internal/api/openapi.yaml")
-	})
-
-	r.Get("/", doc.Handler())
-
-	return r
-}
-
 func (s *Server) apiRoutes() http.Handler {
 	r := chi.NewRouter()
-	apiImpl := handlers.NewAPIImplementation(s.cfg, s.storage, s.log, s.tokenAuth)
+	apiImpl := handlers.NewAPIImplementation(s.authClient, s.log, s.tokenAuth)
 
 	r.Group(func(r chi.Router) {
 		r.Post("/auth/login", apiImpl.PostAuthLogin)
@@ -202,20 +114,4 @@ func (s *Server) apiRoutes() http.Handler {
 	})
 
 	return r
-}
-
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
 }

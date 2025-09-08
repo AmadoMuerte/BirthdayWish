@@ -1,22 +1,22 @@
 version: "3.8"
 
 services:
-  db:
+  auth-db:
     image: postgres:alpine
     restart: always
     shm_size: 128mb
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - auth_db_data:/var/lib/postgresql/data
       - type: tmpfs
         target: /dev/shm
         tmpfs:
           size: 134217728
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASS:-postgres}
-      POSTGRES_DB: ${DB_NAME:-appdb}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: users_service
     ports:
-      - ${DB_PORT:-5432}:5432
+      - "5433:5432"
     networks:
       - db_network
 
@@ -24,25 +24,28 @@ services:
     image: minio/minio
     restart: always
     ports:
-      - ${MINIO_API_PORT:-9000}:9000
-      - ${MINIO_CONSOLE_PORT}:9001
+      - "9000:9000"
+      - "9001:9001"
     environment:
-      - MINIO_ROOT_USER=${MINIO_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_PASS}
+      - MINIO_ROOT_USER=${MINIO_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASS:-minioadmin}
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
+    networks:
+      - app_network
 
   pgadmin:
     image: dpage/pgadmin4
     restart: always
     depends_on:
       - db
+      - auth-db
     ports:
-      - ${PGADMIN_PORT:-8080}:80
+      - "8080:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     networks:
       - db_network
 
@@ -50,10 +53,10 @@ services:
     image: redis:latest
     container_name: redis_container
     environment:
-      - REDIS_PASSWORD=${REDIS_PASS}
-      - REDIS_USER=${REDIS_USER}
+      - REDIS_PASSWORD=${REDIS_PASS:-redispass}
+      - REDIS_USER=${REDIS_USER:-redisuser}
     ports:
-      - ${REDIS_PORT}:6379
+      - "6379:6379"
     volumes:
       - redis_data:/data
     deploy:
@@ -81,14 +84,17 @@ services:
       timeout: 10s
       retries: 5
     restart: unless-stopped
-    tty: true
-    stdin_open: true
+    networks:
+      - app_network
 
 volumes:
   db_data:
+  auth_db_data:
   minio_data:
   redis_data:
 
 networks:
+  app_network:
+    driver: bridge
   db_network:
     driver: bridge

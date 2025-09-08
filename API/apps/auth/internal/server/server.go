@@ -1,0 +1,136 @@
+package server
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/service"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/storage"
+	authProto "github.com/AmadoMuerte/BirthdayWish/API/proto/auth"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+)
+
+type Server struct {
+	cfg            *config.Config
+	storage        *storage.Storage
+	authService    *service.AuthService
+	grpcServer     *grpc.Server
+	log            *slog.Logger
+	requestCounter prometheus.Counter
+	responseTime   prometheus.Histogram
+	errorCounter   prometheus.Counter
+}
+
+func New(cfg *config.Config, storage *storage.Storage, authService *service.AuthService, log *slog.Logger) *Server {
+	server := &Server{
+		cfg:         cfg,
+		storage:     storage,
+		authService: authService,
+		log:         log,
+	}
+	server.initMetrics()
+	return server
+}
+
+func (s *Server) initMetrics() {
+	s.requestCounter = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "grpc_requests_total",
+		Help: "Total number of gRPC requests",
+		ConstLabels: prometheus.Labels{
+			"service": "auth",
+		},
+	})
+
+	s.responseTime = promauto.NewHistogram(prometheus.HistogramOpts{
+		Name:    "grpc_request_duration_seconds",
+		Help:    "Duration of gRPC requests",
+		Buckets: []float64{0.01, 0.05, 0.1, 0.5, 1, 2},
+		ConstLabels: prometheus.Labels{
+			"service": "auth",
+		},
+	})
+
+	s.errorCounter = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "grpc_errors_total",
+		Help: "Total number of gRPC errors",
+		ConstLabels: prometheus.Labels{
+			"service": "auth",
+		},
+	})
+}
+
+func (s *Server) Start() {
+	s.grpcServer = grpc.NewServer(
+		grpc.UnaryInterceptor(s.metricsInterceptor),
+	)
+
+	authProto.RegisterAuthServiceServer(s.grpcServer, s.authService)
+
+	if s.cfg.App.Mode == "dev" {
+		reflection.Register(s.grpcServer)
+	}
+
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", s.cfg.App.Host, s.cfg.App.AuthServicePort))
+	if err != nil {
+		s.log.Error("failed to listen", "error", err, "port", s.cfg.App.AuthServicePort)
+		os.Exit(1)
+	}
+
+	serverErr := make(chan error, 1)
+
+	go func() {
+		s.log.Info("Auth service started",
+			"port", s.cfg.App.AuthServicePort,
+			"mode", s.cfg.App.Mode)
+
+		if err := s.grpcServer.Serve(lis); err != nil {
+			serverErr <- err
+		}
+		close(serverErr)
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case <-quit:
+		s.log.Info("Shutting down auth service...")
+		s.Stop()
+	case err := <-serverErr:
+		s.log.Error("Server error", "error", err)
+		s.Stop()
+	}
+}
+
+func (s *Server) Stop() {
+	if s.grpcServer != nil {
+		s.grpcServer.GracefulStop()
+	}
+	s.log.Info("Auth service stopped")
+}
+
+func (s *Server) metricsInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	start := time.Now()
+	s.requestCounter.Inc()
+
+	resp, err := handler(ctx, req)
+
+	duration := time.Since(start).Seconds()
+	s.responseTime.Observe(duration)
+
+	if err != nil {
+		s.errorCounter.Inc()
+	}
+
+	return resp, err
+}

@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/client"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/logger"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/server"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/storage"
 )
 
 func main() {
@@ -23,16 +23,16 @@ func main() {
 		err = fmt.Errorf("Config error: %s", err)
 		panic(err)
 	}
-	storage, err := storage.NewStorage(cfg)
-	if err != nil {
-		err = fmt.Errorf("DB error: %s", err)
-		panic(err)
-	}
 
 	log := logger.SetupLogger(cfg.App.Mode)
 
-	server := server.New(cfg, storage, log)
-	server.Start()
+	authAddr := fmt.Sprintf("%s:%s", cfg.App.Address, cfg.App.AuthServicePort)
+	authClient, err := client.NewAuthClient(authAddr, log)
+	if err != nil {
+		err = fmt.Errorf("Auth client error: %s", err)
+		panic(err)
+	}
 
-	defer storage.Close()
+	server := server.New(cfg, log, authClient)
+	server.Start()
 }

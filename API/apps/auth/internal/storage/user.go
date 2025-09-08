@@ -2,11 +2,9 @@ package storage
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/models"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/models"
 )
 
 func (s *Storage) CreateUser(ctx context.Context, user *models.User) error {
@@ -52,24 +50,4 @@ func (s *Storage) GetUserByUsername(ctx context.Context, name string) (models.Us
 	}
 
 	return user, nil
-}
-
-func (s *Storage) GetUserIDByToken(ctx context.Context, token string) (int64, error) {
-	var userID int64
-
-	err := s.DB.NewSelect().
-		Column("user_id").
-		Table("share_wishlist_access").
-		Where("access_token = ?", token).
-		Limit(1).
-		Scan(ctx, &userID)
-
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 0, fmt.Errorf("token not found")
-		}
-		return 0, fmt.Errorf("failed to get user ID: %w", err)
-	}
-
-	return userID, nil
 }
