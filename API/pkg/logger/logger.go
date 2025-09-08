@@ -19,7 +19,6 @@ func (h *ColorHandler) Handle(ctx context.Context, r slog.Record) error {
 	level := r.Level
 	message := r.Message
 
-	// Выбираем цвет в зависимости от уровня логирования
 	var levelColor *color.Color
 	switch level {
 	case slog.LevelDebug:

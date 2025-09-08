@@ -7,8 +7,8 @@ import (
 
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/client"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/logger"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/server"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/logger"
 )
 
 func main() {

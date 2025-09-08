@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/logger"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/server"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/service"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/pkg/logger"
 )
 
 func main() {

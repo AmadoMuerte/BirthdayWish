@@ -8,25 +8,6 @@ servers:
     description: Development server
 
 paths:  
-  /health:
-    get:
-      summary: Health check
-      description: Check if the server is running
-      tags:
-        - Health
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthResponse'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
   /auth/signup:
     post:
       summary: User registration

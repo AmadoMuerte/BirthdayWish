@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/client"
 	api "github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/gen"
@@ -14,35 +13,16 @@ import (
 )
 
 type APIImplementation struct {
-	authHandler   *auth_handler.AuthHandler
-	healthHandler *HealthHandler
-	authClient    *client.AuthClient
+	authHandler *auth_handler.AuthHandler
+	authClient  *client.AuthClient
 }
 
 type HealthHandler struct{}
 
 func NewAPIImplementation(authClient *client.AuthClient, log *slog.Logger, tokenAuth *jwtauth.JWTAuth) *APIImplementation {
 	return &APIImplementation{
-		authHandler:   auth_handler.NewAuthHandler(authClient, log),
-		healthHandler: &HealthHandler{},
+		authHandler: auth_handler.NewAuthHandler(authClient, log),
 	}
-}
-
-func (a *APIImplementation) GetHealth(w http.ResponseWriter, r *http.Request) {
-	a.healthHandler.GetHealth(w, r)
-}
-
-func (a *HealthHandler) GetHealth(w http.ResponseWriter, r *http.Request) {
-	status := "healthy"
-	timestamp := time.Now()
-	response := api.HealthResponse{
-		Status:    &status,
-		Timestamp: &timestamp,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
 }
 
 func (a *APIImplementation) PostAuthLogin(w http.ResponseWriter, r *http.Request) {
