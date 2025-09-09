@@ -10,11 +10,12 @@ import (
 
 type Config struct {
 	App struct {
-		Mode            string `envconfig:"RUN_MODE" default:"dev"`
-		Address         string `envconfig:"APP_ADDRESS" default:"localhost"`
-		Port            string `envconfig:"APP_PORT" default:"3030"`
-		SecretKey       string `envconfig:"SECRET_KEY" default:"bibibibiba"`
-		AuthServicePort string `envconfig:"AUTH_SERVICE_PORT" default:"50051"`
+		Mode                  string `envconfig:"RUN_MODE" default:"dev"`
+		Address               string `envconfig:"APP_ADDRESS" default:"localhost"`
+		Port                  string `envconfig:"APP_PORT" default:"3030"`
+		SecretKey             string `envconfig:"SECRET_KEY" default:"bibibibiba"`
+		AuthServicePort       string `envconfig:"AUTH_SERVICE_PORT" default:"50051"`
+		WishlisterServicePort string `envconfig:"WISHLISTER_SERVICE_PORT" default:"50052"`
 	}
 }
 

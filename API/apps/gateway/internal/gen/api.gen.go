@@ -17,6 +17,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
+	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -72,6 +73,20 @@ type SignUpResponse struct {
 	UserId  *int64  `json:"userId,omitempty"`
 }
 
+// WishResponse defines model for WishResponse.
+type WishResponse struct {
+	CreatedAt   *time.Time `json:"created_at,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	Id          *int64     `json:"id,omitempty"`
+	ImageUrl    *string    `json:"image_url,omitempty"`
+	Link        *string    `json:"link,omitempty"`
+	Price       *float64   `json:"price,omitempty"`
+	Priority    *int32     `json:"priority,omitempty"`
+	Title       *string    `json:"title,omitempty"`
+	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+	UserId      *int64     `json:"user_id,omitempty"`
+}
+
 // PostAuthLoginJSONRequestBody defines body for PostAuthLogin for application/json ContentType.
 type PostAuthLoginJSONRequestBody = SignInRequest
 
@@ -89,6 +104,9 @@ type ServerInterface interface {
 	// Test authentication
 	// (GET /test-auth)
 	GetTestAuth(w http.ResponseWriter, r *http.Request)
+	// Get a wish
+	// (GET /wish/{wish_id})
+	GetWishWishId(w http.ResponseWriter, r *http.Request, wishId int64)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -110,6 +128,12 @@ func (_ Unimplemented) PostAuthSignup(w http.ResponseWriter, r *http.Request) {
 // Test authentication
 // (GET /test-auth)
 func (_ Unimplemented) GetTestAuth(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get a wish
+// (GET /wish/{wish_id})
+func (_ Unimplemented) GetWishWishId(w http.ResponseWriter, r *http.Request, wishId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -173,6 +197,37 @@ func (siw *ServerInterfaceWrapper) GetTestAuth(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetTestAuth(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetWishWishId operation middleware
+func (siw *ServerInterfaceWrapper) GetWishWishId(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "wish_id" -------------
+	var wishId int64
+
+	err = runtime.BindStyledParameterWithOptions("simple", "wish_id", chi.URLParam(r, "wish_id"), &wishId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "wish_id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetWishWishId(w, r, wishId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -304,6 +359,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/test-auth", wrapper.GetTestAuth)
 	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/wish/{wish_id}", wrapper.GetWishWishId)
+	})
 
 	return r
 }
@@ -311,25 +369,29 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"4LOC+4sxXc1W/wUAAP//SrmViNoWAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

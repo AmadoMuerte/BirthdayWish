@@ -24,15 +24,16 @@ type Server struct {
 	tokenAuth      *jwtauth.JWTAuth
 	log            *slog.Logger
 	authClient     *client.AuthClient
+	wishClient     *client.WishlisterClient
 	requestCounter prometheus.Counter
 	responseTime   prometheus.Histogram
 	errorCounter   prometheus.Counter
 	activeRequests prometheus.Gauge
 }
 
-func New(cfg *config.Config, log *slog.Logger, authClient *client.AuthClient) *Server {
+func New(cfg *config.Config, log *slog.Logger, authClient *client.AuthClient, wishClient *client.WishlisterClient) *Server {
 	tokenAuth := jwtauth.New("HS256", []byte(cfg.App.SecretKey), nil)
-	server := &Server{cfg, tokenAuth, log, authClient, nil, nil, nil, nil}
+	server := &Server{cfg, tokenAuth, log, authClient, wishClient, nil, nil, nil, nil}
 	server.initMetrics()
 	return server
 }
@@ -98,7 +99,7 @@ func (s *Server) createRouter() http.Handler {
 
 func (s *Server) apiRoutes() http.Handler {
 	r := chi.NewRouter()
-	apiImpl := handlers.NewAPIImplementation(s.authClient, s.log, s.tokenAuth)
+	apiImpl := handlers.NewAPIImplementation(s.authClient, s.wishClient, s.log, s.tokenAuth)
 
 	r.Group(func(r chi.Router) {
 		r.Post("/auth/login", apiImpl.PostAuthLogin)

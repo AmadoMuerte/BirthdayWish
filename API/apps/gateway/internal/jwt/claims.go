@@ -2,7 +2,8 @@ package jwt
 
 import (
 	"context"
-	"errors"
+	"fmt"
+	"time"
 
 	"github.com/go-chi/jwtauth/v5"
 )
@@ -14,9 +15,9 @@ const (
 )
 
 type Claims struct {
-	UserID int64 `json:"user_id"`
-	Exp    int64 `json:"exp"`
-	Iat    int64 `json:"iat"`
+	UserID int64     `json:"user_id"`
+	Exp    time.Time `json:"exp"`
+	Iat    time.Time `json:"iat"`
 }
 
 func NewClaims(claims Claims) map[string]any {
@@ -27,30 +28,50 @@ func NewClaims(claims Claims) map[string]any {
 	}
 }
 
+func getClaimInt64(claims map[string]interface{}, key string) (int64, error) {
+	value, exists := claims[key]
+	if !exists {
+		return 0, fmt.Errorf("claim %s not found", key)
+	}
+
+	switch v := value.(type) {
+	case float64:
+		return int64(v), nil
+	case int:
+		return int64(v), nil
+	case int64:
+		return v, nil
+	case time.Time:
+		return v.Unix(), nil
+	default:
+		return 0, fmt.Errorf("invalid %s type: %T", key, value)
+	}
+}
+
 func GetClaims(ctx context.Context) (Claims, error) {
-	_, claims, err := jwtauth.FromContext(ctx)
+	_, claimsMap, err := jwtauth.FromContext(ctx)
 	if err != nil {
 		return Claims{}, err
 	}
 
-	userID, ok := claims[USER_ID_CLAIM].(float64)
-	if !ok {
-		return Claims{}, errors.New("invalid user_id in claims")
+	userID, err := getClaimInt64(claimsMap, USER_ID_CLAIM)
+	if err != nil {
+		return Claims{}, err
 	}
 
-	exp, ok := claims[EXP_CLAIM].(float64)
-	if !ok {
-		return Claims{}, errors.New("invalid exp in claims")
+	expUnix, err := getClaimInt64(claimsMap, EXP_CLAIM)
+	if err != nil {
+		return Claims{}, err
 	}
 
-	iat, ok := claims[IAT_CLAIM].(float64)
-	if !ok {
-		return Claims{}, errors.New("invalid iat in claims")
+	iatUnix, err := getClaimInt64(claimsMap, IAT_CLAIM)
+	if err != nil {
+		return Claims{}, err
 	}
 
 	return Claims{
-		UserID: int64(userID),
-		Exp:    int64(exp),
-		Iat:    int64(iat),
+		UserID: userID,
+		Exp:    time.Unix(expUnix, 0),
+		Iat:    time.Unix(iatUnix, 0),
 	}, nil
 }

@@ -111,16 +111,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /wish/{wish_id}:
+    get:
+      summary: Get a wish
+      description: Get a wish
+      tags:
+        - Wish
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: wish_id
+          in: path
+          required: true
+          description: Wish ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Wish retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Wish not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
-    HealthResponse:
+    WishResponse:
       type: object
       properties:
-        status:
+        id:
+          type: integer
+          format: int64
+          example: 123
+        user_id:
+          type: integer
+          format: int64
+          example: 123
+        title:
           type: string
-          example: "healthy"
-        timestamp:
+          example: "Wish title"
+        description:
+          type: string
+          example: "Wish description"
+        image_url:
+          type: string
+          example: "https://example.com/image.jpg"
+        link:
+          type: string
+          example: "https://example.com/wish"
+        price:
+          type: number
+          format: double
+          example: 100
+        priority:
+          type: integer
+          format: int32
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
           type: string
           format: date-time
           example: "2024-01-15T10:30:00Z"

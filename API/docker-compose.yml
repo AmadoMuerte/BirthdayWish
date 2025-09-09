@@ -19,6 +19,24 @@ services:
       - "5433:5432"
     networks:
       - db_network
+  wish-db:
+    image: postgres:alpine
+    restart: always
+    shm_size: 128mb
+    volumes:
+      - wish_db_data:/var/lib/postgresql/data
+      - type: tmpfs
+        target: /dev/shm
+        tmpfs:
+          size: 134217728
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wish_service
+    ports:
+      - "5434:5432"
+    networks:
+      - db_network
 
   minio:
     image: minio/minio
@@ -88,8 +106,8 @@ services:
       - app_network
 
 volumes:
-  db_data:
   auth_db_data:
+  wish_db_data:
   minio_data:
   redis_data:
 

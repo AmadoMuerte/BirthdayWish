@@ -33,6 +33,13 @@ func main() {
 		panic(err)
 	}
 
-	server := server.New(cfg, log, authClient)
+	wishAddr := fmt.Sprintf("%s:%s", cfg.App.Address, cfg.App.WishlisterServicePort)
+	wishClient, err := client.NewWishlisterClient(wishAddr, log)
+	if err != nil {
+		err = fmt.Errorf("Wishlister client error: %s", err)
+		panic(err)
+	}
+
+	server := server.New(cfg, log, authClient, wishClient)
 	server.Start()
 }

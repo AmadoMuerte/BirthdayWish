@@ -1,0 +1,81 @@
+// apps/wishlister-service/internal/proto/wish.proto
+syntax = "proto3";
+
+package wish;
+option go_package = "../wish";
+
+service WishService {
+  rpc CreateWish(CreateWishRequest) returns (WishResponse);
+  rpc GetWish(GetWishRequest) returns (WishResponse);
+  rpc UpdateWish(UpdateWishRequest) returns (WishResponse);
+  rpc DeleteWish(DeleteWishRequest) returns (EmptyResponse);
+  rpc ListWishes(ListWishesRequest) returns (WishListResponse);
+  rpc CreateShareLink(CreateShareLinkRequest) returns (ShareLinkResponse);
+  rpc GetSharedWishes(GetSharedRequest) returns (WishListResponse);
+}
+
+message CreateWishRequest {
+  int64 user_id = 1;
+  string title = 2;
+  string description = 3;
+  string image_url = 4;
+  string link = 5;
+  double price = 6;
+  int32 priority = 7;
+}
+
+message GetWishRequest {
+  int64 user_id = 1;
+  int64 wish_id = 2;
+}
+
+message UpdateWishRequest {
+  int64 user_id = 1;
+  int64 wish_id = 2;
+  map<string, string> update_data = 3;
+}
+
+message DeleteWishRequest {
+  int64 user_id = 1;
+  int64 wish_id = 2;
+}
+
+message ListWishesRequest {
+  int64 user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message CreateShareLinkRequest {
+  int64 user_id = 1;
+  int64 expires_in = 2; // seconds
+}
+
+message GetSharedRequest {
+  string share_token = 1;
+}
+
+message WishResponse {
+  int64 id = 1;
+  int64 user_id = 2;
+  string title = 3;
+  string description = 4;
+  string image_url = 5;
+  string link = 6;
+  double price = 7;
+  int32 priority = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message WishListResponse {
+  repeated WishResponse wishes = 1;
+  int32 total_count = 2;
+}
+
+message ShareLinkResponse {
+  string share_token = 1;
+  string expires_at = 2;
+}
+
+message EmptyResponse {}
