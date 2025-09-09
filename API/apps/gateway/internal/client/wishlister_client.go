@@ -67,3 +67,11 @@ func (c *WishlisterClient) CreateShareLink(ctx context.Context, req *wishProto.C
 func (c *WishlisterClient) GetSharedWishes(ctx context.Context, req *wishProto.GetSharedRequest) (*wishProto.WishListResponse, error) {
 	return c.client.GetSharedWishes(ctx, req)
 }
+
+func (c *WishlisterClient) DeleteShareLink(ctx context.Context, req *wishProto.DeleteShareLinkRequest) (*wishProto.EmptyResponse, error) {
+	return c.client.DeleteShareLink(ctx, req)
+}
+
+func (c *WishlisterClient) GetShareLinks(ctx context.Context, req *wishProto.GetShareLinksRequest) (*wishProto.ShareLinksResponse, error) {
+	return c.client.GetShareLinks(ctx, req)
+}

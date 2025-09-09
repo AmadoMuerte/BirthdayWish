@@ -14,4 +14,5 @@ type ShareLink struct {
 	UserID    int64     `bun:"user_id" json:"user_id"`
 	ExpiresAt time.Time `bun:"expires_at" json:"expires_at"`
 	CreatedAt time.Time `bun:"created_at" json:"created_at"`
+	UpdatedAt time.Time `bun:"updated_at" json:"updated_at"`
 }

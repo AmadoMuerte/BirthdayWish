@@ -23,13 +23,54 @@ import (
 
 const (
 	BearerAuthScopes = "BearerAuth.Scopes"
+	NoneScopes       = "None.Scopes"
 )
+
+// CreateShareLinkRequest defines model for CreateShareLinkRequest.
+type CreateShareLinkRequest struct {
+	ExpiresIn int64 `json:"expires_in"`
+}
+
+// CreateWishRequest defines model for CreateWishRequest.
+type CreateWishRequest struct {
+	Description *string  `json:"description,omitempty"`
+	ImageBase64 *string  `json:"image_base64,omitempty"`
+	Link        *string  `json:"link,omitempty"`
+	Price       *float64 `json:"price,omitempty"`
+	Priority    *int32   `json:"priority,omitempty"`
+	Title       string   `json:"title"`
+}
+
+// DeleteShareLinkRequest defines model for DeleteShareLinkRequest.
+type DeleteShareLinkRequest struct {
+	ShareToken string `json:"share_token"`
+}
 
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {
-	Code    *int    `json:"code,omitempty"`
-	Error   *bool   `json:"error,omitempty"`
-	Message *string `json:"message,omitempty"`
+	Message string `json:"message"`
+}
+
+// GetSharedWishesRequest defines model for GetSharedWishesRequest.
+type GetSharedWishesRequest struct {
+	ShareToken string `json:"share_token"`
+}
+
+// OKResponse defines model for OKResponse.
+type OKResponse struct {
+	Message string `json:"message"`
+}
+
+// ShareLinkResponse defines model for ShareLinkResponse.
+type ShareLinkResponse struct {
+	ExpiresAt  time.Time `json:"expires_at"`
+	ShareToken *string   `json:"share_token,omitempty"`
+}
+
+// ShareLinksResponse defines model for ShareLinksResponse.
+type ShareLinksResponse struct {
+	Tokens     []ShareLinkResponse `json:"tokens"`
+	TotalCount int32               `json:"total_count"`
 }
 
 // SignInRequest defines model for SignInRequest.
@@ -44,15 +85,15 @@ type SignInRequest struct {
 // SignInResponse defines model for SignInResponse.
 type SignInResponse struct {
 	// Email User email
-	Email *string `json:"email,omitempty"`
+	Email string `json:"email"`
 
 	// Exp Token expiration time
-	Exp  *time.Time `json:"exp,omitempty"`
-	Name *string    `json:"name,omitempty"`
+	Exp  time.Time `json:"exp"`
+	Name string    `json:"name"`
 
 	// Token JWT authentication token
-	Token  *string `json:"token,omitempty"`
-	UserId *int64  `json:"userId,omitempty"`
+	Token  string `json:"token"`
+	UserId int64  `json:"userId"`
 }
 
 // SignUpRequest defines model for SignUpRequest.
@@ -69,22 +110,43 @@ type SignUpRequest struct {
 
 // SignUpResponse defines model for SignUpResponse.
 type SignUpResponse struct {
-	Message *string `json:"message,omitempty"`
-	UserId  *int64  `json:"userId,omitempty"`
+	Message string `json:"message"`
+	UserId  int64  `json:"userId"`
+}
+
+// UpdateWishRequest defines model for UpdateWishRequest.
+type UpdateWishRequest struct {
+	Description *string  `json:"description,omitempty"`
+	ImageBase64 *string  `json:"image_base64,omitempty"`
+	Link        *string  `json:"link,omitempty"`
+	Price       *float64 `json:"price,omitempty"`
+	Priority    *int32   `json:"priority,omitempty"`
+	Title       *string  `json:"title,omitempty"`
+}
+
+// WishDeletedResponse defines model for WishDeletedResponse.
+type WishDeletedResponse struct {
+	Message string `json:"message"`
+}
+
+// WishListResponse defines model for WishListResponse.
+type WishListResponse struct {
+	TotalCount int32          `json:"total_count"`
+	Wishes     []WishResponse `json:"wishes"`
 }
 
 // WishResponse defines model for WishResponse.
 type WishResponse struct {
-	CreatedAt   *time.Time `json:"created_at,omitempty"`
-	Description *string    `json:"description,omitempty"`
-	Id          *int64     `json:"id,omitempty"`
-	ImageUrl    *string    `json:"image_url,omitempty"`
-	Link        *string    `json:"link,omitempty"`
-	Price       *float64   `json:"price,omitempty"`
-	Priority    *int32     `json:"priority,omitempty"`
-	Title       *string    `json:"title,omitempty"`
-	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
-	UserId      *int64     `json:"user_id,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+	Description *string   `json:"description,omitempty"`
+	Id          int64     `json:"id"`
+	ImageUrl    *string   `json:"image_url,omitempty"`
+	Link        *string   `json:"link,omitempty"`
+	Price       *float64  `json:"price,omitempty"`
+	Priority    *int32    `json:"priority,omitempty"`
+	Title       string    `json:"title"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	UserId      int64     `json:"user_id"`
 }
 
 // PostAuthLoginJSONRequestBody defines body for PostAuthLogin for application/json ContentType.
@@ -92,6 +154,21 @@ type PostAuthLoginJSONRequestBody = SignInRequest
 
 // PostAuthSignupJSONRequestBody defines body for PostAuthSignup for application/json ContentType.
 type PostAuthSignupJSONRequestBody = SignUpRequest
+
+// DeleteShareLinksJSONRequestBody defines body for DeleteShareLinks for application/json ContentType.
+type DeleteShareLinksJSONRequestBody = DeleteShareLinkRequest
+
+// PostShareLinksJSONRequestBody defines body for PostShareLinks for application/json ContentType.
+type PostShareLinksJSONRequestBody = CreateShareLinkRequest
+
+// PostWishJSONRequestBody defines body for PostWish for application/json ContentType.
+type PostWishJSONRequestBody = CreateWishRequest
+
+// PatchWishWishIdJSONRequestBody defines body for PatchWishWishId for application/json ContentType.
+type PatchWishWishIdJSONRequestBody = UpdateWishRequest
+
+// GetWishesSharedJSONRequestBody defines body for GetWishesShared for application/json ContentType.
+type GetWishesSharedJSONRequestBody = GetSharedWishesRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -101,12 +178,33 @@ type ServerInterface interface {
 	// User registration
 	// (POST /auth/signup)
 	PostAuthSignup(w http.ResponseWriter, r *http.Request)
-	// Test authentication
-	// (GET /test-auth)
-	GetTestAuth(w http.ResponseWriter, r *http.Request)
+	// Delete a share link
+	// (DELETE /share-links)
+	DeleteShareLinks(w http.ResponseWriter, r *http.Request)
+	// Get share links
+	// (GET /share-links)
+	GetShareLinks(w http.ResponseWriter, r *http.Request)
+	// Create a share link
+	// (POST /share-links)
+	PostShareLinks(w http.ResponseWriter, r *http.Request)
+	// Create a wish
+	// (POST /wish)
+	PostWish(w http.ResponseWriter, r *http.Request)
+	// Delete a wish
+	// (DELETE /wish/{wish_id})
+	DeleteWishWishId(w http.ResponseWriter, r *http.Request, wishId int64)
 	// Get a wish
 	// (GET /wish/{wish_id})
 	GetWishWishId(w http.ResponseWriter, r *http.Request, wishId int64)
+	// Update a wish
+	// (PATCH /wish/{wish_id})
+	PatchWishWishId(w http.ResponseWriter, r *http.Request, wishId int64)
+	// List wishes
+	// (GET /wishes)
+	GetWishes(w http.ResponseWriter, r *http.Request)
+	// Get shared wishes
+	// (GET /wishes/shared)
+	GetWishesShared(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -125,15 +223,57 @@ func (_ Unimplemented) PostAuthSignup(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// Test authentication
-// (GET /test-auth)
-func (_ Unimplemented) GetTestAuth(w http.ResponseWriter, r *http.Request) {
+// Delete a share link
+// (DELETE /share-links)
+func (_ Unimplemented) DeleteShareLinks(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get share links
+// (GET /share-links)
+func (_ Unimplemented) GetShareLinks(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Create a share link
+// (POST /share-links)
+func (_ Unimplemented) PostShareLinks(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Create a wish
+// (POST /wish)
+func (_ Unimplemented) PostWish(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Delete a wish
+// (DELETE /wish/{wish_id})
+func (_ Unimplemented) DeleteWishWishId(w http.ResponseWriter, r *http.Request, wishId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // Get a wish
 // (GET /wish/{wish_id})
 func (_ Unimplemented) GetWishWishId(w http.ResponseWriter, r *http.Request, wishId int64) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Update a wish
+// (PATCH /wish/{wish_id})
+func (_ Unimplemented) PatchWishWishId(w http.ResponseWriter, r *http.Request, wishId int64) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List wishes
+// (GET /wishes)
+func (_ Unimplemented) GetWishes(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get shared wishes
+// (GET /wishes/shared)
+func (_ Unimplemented) GetWishesShared(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -186,8 +326,8 @@ func (siw *ServerInterfaceWrapper) PostAuthSignup(w http.ResponseWriter, r *http
 	handler.ServeHTTP(w, r)
 }
 
-// GetTestAuth operation middleware
-func (siw *ServerInterfaceWrapper) GetTestAuth(w http.ResponseWriter, r *http.Request) {
+// DeleteShareLinks operation middleware
+func (siw *ServerInterfaceWrapper) DeleteShareLinks(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
@@ -196,7 +336,98 @@ func (siw *ServerInterfaceWrapper) GetTestAuth(w http.ResponseWriter, r *http.Re
 	r = r.WithContext(ctx)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetTestAuth(w, r)
+		siw.Handler.DeleteShareLinks(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetShareLinks operation middleware
+func (siw *ServerInterfaceWrapper) GetShareLinks(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetShareLinks(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PostShareLinks operation middleware
+func (siw *ServerInterfaceWrapper) PostShareLinks(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostShareLinks(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PostWish operation middleware
+func (siw *ServerInterfaceWrapper) PostWish(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostWish(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// DeleteWishWishId operation middleware
+func (siw *ServerInterfaceWrapper) DeleteWishWishId(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "wish_id" -------------
+	var wishId int64
+
+	err = runtime.BindStyledParameterWithOptions("simple", "wish_id", chi.URLParam(r, "wish_id"), &wishId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "wish_id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteWishWishId(w, r, wishId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -228,6 +459,77 @@ func (siw *ServerInterfaceWrapper) GetWishWishId(w http.ResponseWriter, r *http.
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetWishWishId(w, r, wishId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// PatchWishWishId operation middleware
+func (siw *ServerInterfaceWrapper) PatchWishWishId(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "wish_id" -------------
+	var wishId int64
+
+	err = runtime.BindStyledParameterWithOptions("simple", "wish_id", chi.URLParam(r, "wish_id"), &wishId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "wish_id", Err: err})
+		return
+	}
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PatchWishWishId(w, r, wishId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetWishes operation middleware
+func (siw *ServerInterfaceWrapper) GetWishes(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetWishes(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetWishesShared operation middleware
+func (siw *ServerInterfaceWrapper) GetWishesShared(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, NoneScopes, []string{})
+
+	r = r.WithContext(ctx)
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetWishesShared(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -357,10 +659,31 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/auth/signup", wrapper.PostAuthSignup)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/test-auth", wrapper.GetTestAuth)
+		r.Delete(options.BaseURL+"/share-links", wrapper.DeleteShareLinks)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/share-links", wrapper.GetShareLinks)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/share-links", wrapper.PostShareLinks)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/wish", wrapper.PostWish)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/wish/{wish_id}", wrapper.DeleteWishWishId)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/wish/{wish_id}", wrapper.GetWishWishId)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/wish/{wish_id}", wrapper.PatchWishWishId)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/wishes", wrapper.GetWishes)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/wishes/shared", wrapper.GetWishesShared)
 	})
 
 	return r
@@ -369,29 +692,37 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/8xYbW/bNhD+Kxy3Dy2gWLKdFq0+rW8rFBRb0CTrsMAIGOksMaVIlTw5cQv/94GUHEuW",
-	"FAetm+VDAkkUj8+9PHeP/I3GKi+UBImGht+oiTPImbt8p7XSH8EUShqwDwqtCtDIwS3HKnFP4YblhQAa",
-	"HgaBR3FZAA0plwgpaLryKFgzrRdRl3D75qVSApi0b+ZgDEvbRumrEjOQyGOGXEkyZ1xAQm+3G9RcpnS1",
-	"un2iLq8gRmvvhKcykh/hSwkGuw4UzJhrpRN7nYCJNS/sETSkx+sVrwHkBOJSg10aT6a/dBF4tDSgJcuh",
-	"a/BsvdI0eKUyeZEo6HVGw5eSa0hoeL6x620wz+7wdyhjkDMu+sGRam0b3u/17ShWeZ/HcFN07Z2qzyAJ",
-	"3BRcVzlDvuX5JJgcHgTjg/Gz03EQToMwCP6lHp0rnTOkIU0YwkG9q3PmOsL3CaRH0YLpYjz6dEpYu7Kq",
-	"N5swYXmUXb6P+V/8KDr7Go3/5JGJ5Mdn8ZvoefS5+OfvN0cvR6PRUClESQvmeDJtuMglPj+kXb4M1fFZ",
-	"MVjHA2l9Zx8TliQajNmV2Vtc6zroeLSbLeTJi4NJQOKMaRYjaOMRAVhdyDK/BG0IkwkxBcScicaLhAmh",
-	"riF5ejfhcnbzAWSKGQ0ngUdzLte3L76LjeTJdBdgj1w4zAdESbF8OsTfYWTT7yG3V6dhdkcxDJG8t4k6",
-	"iscaGEJCTBnHYMy8FGL502v3EzfZHTOkgnTBsI33hxpEK9lNqxYLaa72bObf47hHec5SuCi1aJ+YIRYm",
-	"9P0G2Xz36uiqSPuOF1x+3m3impusl6Oax+3Mj+1M3oRNlZeiEbOqyOudSnNctje3XZ9Oel1HjgJ6Al09",
-	"76uvItl/0m3RXvD9VO3Ko8b2Ho7LEyuHqlp9DUyDtnLE3l26uz/Wxo8+nVLv/jPGqSynfpyZDSqbbbqy",
-	"CLicq27renUckbnSJGeSpVymxJaC4AZth68zQV9zjVnCli4Nr44j6tEFaFNZGI+CUWAjpgqQrOA0pNNR",
-	"MJq6/oOZc9W3sH2hUu4YVKhq7GxB2bgGxIbfNcoUkFjH155atjvfbUehx8qg3ffBma4aIRh8rZJlJSkl",
-	"gnRnsaIQddT8K1MxudKm9uo3DXMa0l/9jXj1a+Xqt1Xfqt1vrfR0D6qO5LydBMHeD68bnju9HTbneqMH",
-	"U49mwBLQDosNjtL8K1t3r25JucgSLklVkKQucK+BcHviWBSHwXhvXra/DHqc7BftK48+22Osd6KIJNrZ",
-	"KogBvbAa132JOHqXec70cj0ZRV2OyFJjZ3IbPp3ZLRUnDE9lWQyT4o0baIQRCdc1KeJYlRIHqXBSWfx5",
-	"XNgox3txYbz3w4cTNCxLXME+aKksmOAJ0etQ2fNfPtz5LhJMaGDJksCNa+iPli4aUm6wquVdrEEweMDq",
-	"oZlCD2VOwSABmRSKSySoyAI0ny83U2RriHaY9B7Q2nCT+Qdb+5Y6FYznpr8L12s9ivc+v2K02v/OXzJ2",
-	"9teGuYfu9GeS1SPLNviGcqLheVsznc9Ws2Ypubx3UntnMVmx43+z/y94shqsqPeAhJFaJHdqxaoi+xcl",
-	"TvJolgO66Xu+bcfpp+gttWKMhk4e0fXvD7RGQbc7anMO79aes5+oRVqfXj2pc+5pQM1h8Sj77/9Wxvbw",
-	"w4c73CVCKiRzVcpHJZPuy+UW49YUtm5Z4t7DkDu4j4JvYQFCFTlIrOFRj7rPbPepFPq+UDETmTIYToNp",
-	"4LOC+4sxXc1W/wUAAP//SrmViNoWAAA=",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

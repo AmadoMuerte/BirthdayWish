@@ -2,7 +2,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 
@@ -15,12 +14,8 @@ import (
 
 type APIImplementation struct {
 	authHandler *auth_handler.AuthHandler
-	authClient  *client.AuthClient
-	wishClient  *client.WishlisterClient
 	wishHandler *wish_handler.WishHandler
 }
-
-type HealthHandler struct{}
 
 func NewAPIImplementation(authClient *client.AuthClient, wishClient *client.WishlisterClient, log *slog.Logger, tokenAuth *jwtauth.JWTAuth) *APIImplementation {
 	return &APIImplementation{
@@ -29,6 +24,7 @@ func NewAPIImplementation(authClient *client.AuthClient, wishClient *client.Wish
 	}
 }
 
+// Auth handlers
 func (a *APIImplementation) PostAuthLogin(w http.ResponseWriter, r *http.Request) {
 	a.authHandler.SignIn(w, r)
 }
@@ -37,16 +33,42 @@ func (a *APIImplementation) PostAuthSignup(w http.ResponseWriter, r *http.Reques
 	a.authHandler.SignUp(w, r)
 }
 
-func (a *APIImplementation) GetTestAuth(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Authentication successful",
-	})
-}
-
+// Wish handlers
 func (a *APIImplementation) GetWishWishId(w http.ResponseWriter, r *http.Request, wishId int64) {
 	a.wishHandler.GetWish(w, r, wishId)
+}
+
+func (a *APIImplementation) GetWishes(w http.ResponseWriter, r *http.Request) {
+	a.wishHandler.ListWishes(w, r)
+}
+
+func (a *APIImplementation) PostWish(w http.ResponseWriter, r *http.Request) {
+	a.wishHandler.CreateWish(w, r)
+}
+
+func (a *APIImplementation) PatchWishWishId(w http.ResponseWriter, r *http.Request, wishId int64) {
+	a.wishHandler.UpdateWish(w, r, wishId)
+}
+
+func (a *APIImplementation) DeleteWishWishId(w http.ResponseWriter, r *http.Request, wishId int64) {
+	a.wishHandler.DeleteWish(w, r, wishId)
+}
+
+// Share link handlers
+func (a *APIImplementation) PostShareLinks(w http.ResponseWriter, r *http.Request) {
+	a.wishHandler.CreateShareLink(w, r)
+}
+
+func (a *APIImplementation) GetShareLinks(w http.ResponseWriter, r *http.Request) {
+	a.wishHandler.GetShareLinks(w, r)
+}
+
+func (a *APIImplementation) GetWishesShared(w http.ResponseWriter, r *http.Request) {
+	a.wishHandler.GetSharedWishes(w, r)
+}
+
+func (a *APIImplementation) DeleteShareLinks(w http.ResponseWriter, r *http.Request) {
+	a.wishHandler.DeleteShareLink(w, r)
 }
 
 var _ api.ServerInterface = (*APIImplementation)(nil)

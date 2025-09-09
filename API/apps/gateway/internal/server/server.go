@@ -104,6 +104,7 @@ func (s *Server) apiRoutes() http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Post("/auth/login", apiImpl.PostAuthLogin)
 		r.Post("/auth/signup", apiImpl.PostAuthSignup)
+		r.Get("/wishes/shared", apiImpl.GetWishesShared)
 	})
 
 	r.Group(func(r chi.Router) {

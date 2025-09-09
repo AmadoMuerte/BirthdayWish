@@ -1,4 +1,3 @@
-// apps/gateway/internal/handlers/auth_handler.go
 package auth_handler
 
 import (
@@ -53,8 +52,8 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseData := gen.SignUpResponse{
-		Message: &grpcResp.Message,
-		UserId:  &userId,
+		Message: grpcResp.Message,
+		UserId:  userId,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -89,11 +88,11 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseData := gen.SignInResponse{
-		Email:  &grpcResp.Email,
-		Exp:    &exp,
-		Name:   &grpcResp.Name,
-		Token:  &grpcResp.Token,
-		UserId: &userId,
+		Email:  grpcResp.Email,
+		Exp:    exp,
+		Name:   grpcResp.Name,
+		Token:  grpcResp.Token,
+		UserId: userId,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

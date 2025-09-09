@@ -83,30 +83,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /test-auth:
-    get:
-      summary: Test authentication
-      description: Test endpoint to verify JWT token authentication
+  /wish:
+    post:
+      summary: Create a wish
+      description: Create a wish
       tags:
-        - Authentication
+        - Wish
       security:
         - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWishRequest'
       responses:
         '200':
-          description: Authentication successful
+          description: Wish created successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Authentication successful"
-                  claims:
-                    type: object
-                    description: JWT claims
+                $ref: '#/components/schemas/WishResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -146,8 +157,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Wish not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update a wish
+      description: Update a wish
+      tags:
+        - Wish
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: wish_id
+          in: path
+          required: true
+          description: Wish ID
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWishRequest'
+      responses:
+        '200':
+          description: Wish updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -158,11 +209,363 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+    delete:
+      summary: Delete a wish
+      description: Delete a wish
+      tags:
+        - Wish
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: wish_id
+          in: path
+          required: true
+          description: Wish ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Wish deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishDeletedResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /wishes:
+    get:
+      summary: List wishes
+      description: List wishes
+      tags:
+        - Wish
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Wishes listed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /wishes/shared:
+    get:
+      summary: Get shared wishes
+      description: Get shared wishes
+      security: 
+        - None: []
+      tags:
+        - Wish
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetSharedWishesRequest'
+      responses:
+        '200':
+          description: Shared wishes retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WishListResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /share-links:
+    post:
+      summary: Create a share link
+      description: Create a share link
+      tags:
+        - Share Link
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShareLinkRequest'
+      responses:
+        '200':
+          description: Share link created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareLinkResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Get share links
+      description: Get share links
+      tags:
+        - Share Link
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Share links retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareLinksResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete a share link
+      description: Delete a share link
+      tags:
+        - Share Link
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteShareLinkRequest'
+      responses:
+        '200':
+          description: Share link deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OKResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            
 components:
   schemas:
+    DeleteShareLinkRequest:
+      type: object
+      required:
+        - share_token
+      properties:
+        share_token:
+          type: string
+          example: "1234567890-1234567890-1234567890-1234567890"
+    GetSharedWishesRequest:
+      type: object
+      required:
+        - share_token
+      properties:
+        share_token:
+          type: string
+          example: "1234567890-1234567890-1234567890-1234567890"
+    ShareLinksResponse:
+      type: object
+      required:
+        - tokens
+        - total_count
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShareLinkResponse'
+        total_count:
+          type: integer
+          format: int32
+          example: 10
+    CreateShareLinkRequest:
+      type: object
+      required:
+        - expires_in
+      properties:
+        expires_in:
+          type: integer
+          format: int64
+          example: 3600
+    ShareLinkResponse:
+      type: object
+      required:
+        - token
+        - expires_at
+      properties:
+        share_token:
+          type: string
+          example: "1234567890"
+        expires_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+    WishDeletedResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: "Wish deleted successfully"
+    UpdateWishRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Wish title"
+        description:
+          type: string
+          example: "Wish description"
+        image_base64:
+          type: string
+          example: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQAB..."
+        link:
+          type: string
+          example: "https://example.com/wish"
+        price:
+          type: number
+          format: double
+          example: 100
+        priority:
+          type: integer
+          format: int32
+          example: 1
+
+    CreateWishRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          example: "Wish title"
+        description:
+          type: string
+          example: "Wish description"
+        image_base64:
+          type: string
+          example: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQAB..."
+        link:
+          type: string
+          example: "https://example.com/wish"
+        price:
+          type: number
+          format: double
+          example: 100
+        priority:
+          type: integer
+          format: int32
+          example: 1
+
+    WishListResponse:
+      type: object
+      required:
+        - wishes
+        - total_count
+      properties:
+        wishes:
+          type: array
+          items:
+            $ref: '#/components/schemas/WishResponse'
+        total_count:
+          type: integer
+          format: int32
+          example: 10
+
     WishResponse:
       type: object
+      required:
+        - id
+        - user_id
+        - title
+        - created_at
+        - updated_at
       properties:
         id:
           type: integer
@@ -228,6 +631,9 @@ components:
 
     SignUpResponse:
       type: object
+      required:
+        - message
+        - userId
       properties:
         message:
           type: string
@@ -254,6 +660,12 @@ components:
 
     SignInResponse:
       type: object
+      required:
+        - token
+        - exp
+        - userId
+        - email
+        - name
       properties:
         token:
           type: string
@@ -276,36 +688,22 @@ components:
           type: string
           example: "john_doe"
 
-    ProfileResponse:
-      type: object
-      properties:
-        userId:
-          type: integer
-          format: int64
-          example: 123
-        username:
-          type: string
-          example: "john_doe"
-        email:
-          type: string
-          example: "john@example.com"
-        createdAt:
-          type: string
-          format: date-time
-          example: "2024-01-15T10:30:00Z"
-
     ErrorResponse:
       type: object
+      required:
+        - message
       properties:
-        error:
-          type: boolean
-          example: true
         message:
           type: string
           example: "Authentication failed"
-        code:
-          type: integer
-          example: 400
+    OKResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: "OK"
 
   securitySchemes:
     BearerAuth:

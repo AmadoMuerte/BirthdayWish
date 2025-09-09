@@ -1,4 +1,3 @@
-// apps/wishlister-service/internal/proto/wish.proto
 syntax = "proto3";
 
 package wish;
@@ -11,14 +10,16 @@ service WishService {
   rpc DeleteWish(DeleteWishRequest) returns (EmptyResponse);
   rpc ListWishes(ListWishesRequest) returns (WishListResponse);
   rpc CreateShareLink(CreateShareLinkRequest) returns (ShareLinkResponse);
+  rpc GetShareLinks(GetShareLinksRequest) returns (ShareLinksResponse);
   rpc GetSharedWishes(GetSharedRequest) returns (WishListResponse);
+  rpc DeleteShareLink(DeleteShareLinkRequest) returns (EmptyResponse);
 }
 
 message CreateWishRequest {
   int64 user_id = 1;
   string title = 2;
   string description = 3;
-  string image_url = 4;
+  string image_base64 = 4;
   string link = 5;
   double price = 6;
   int32 priority = 7;
@@ -55,6 +56,15 @@ message GetSharedRequest {
   string share_token = 1;
 }
 
+message GetShareLinksRequest {
+  int64 user_id = 1;
+}
+
+message DeleteShareLinkRequest {
+  int64 user_id = 1;
+  string share_token = 2;
+}
+
 message WishResponse {
   int64 id = 1;
   int64 user_id = 2;
@@ -76,6 +86,11 @@ message WishListResponse {
 message ShareLinkResponse {
   string share_token = 1;
   string expires_at = 2;
+}
+
+message ShareLinksResponse {
+  repeated ShareLinkResponse tokens = 1;
+  int32 total_count = 2;
 }
 
 message EmptyResponse {}
