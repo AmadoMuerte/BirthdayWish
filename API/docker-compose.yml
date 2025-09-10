@@ -65,7 +65,7 @@ services:
       dockerfile: apps/auth/Dockerfile
     container_name: auth-service
     ports:
-      - "${AUTH_SERVICE_PORT}:50051"
+      - "50051:50051"
     depends_on:
       auth-db:
         condition: service_healthy
@@ -78,7 +78,7 @@ services:
       dockerfile: apps/wishlister/Dockerfile
     container_name: wishlister-service
     ports:
-      - "${WISHLISTER_SERVICE_PORT}:50052"
+      - "50052:50052"
     depends_on:
       wish-db:
         condition: service_healthy
@@ -91,7 +91,7 @@ services:
       dockerfile: apps/filer/Dockerfile
     container_name: filer-service
     ports:
-      - "${FILER_SERVICE_PORT}:50053"
+      - "50053:50053"
     depends_on:
       filer-db:
         condition: service_healthy

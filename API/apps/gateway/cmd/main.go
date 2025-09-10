@@ -21,7 +21,7 @@ func main() {
 		panic(err)
 	}
 
-	envPath := filepath.Join(wd, "/../../.env")
+	envPath := filepath.Join(wd, "/../../api_local.env")
 	if *runMode == "production" {
 		envPath = filepath.Join(wd, "/apps/gateway/.env")
 	}
