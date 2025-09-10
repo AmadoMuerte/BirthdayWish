@@ -8,29 +8,34 @@ import (
 	"os"
 	"time"
 
-	authhandler "github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers/auth"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers/wishlist"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/routes"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/storage"
-	_ "github.com/AmadoMuerte/BirthdayWish/API/docs/dateway"
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/redis"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/client"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
+	api "github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/gen"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth/v5"
-	httpSwagger "github.com/swaggo/http-swagger"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Server struct {
-	cfg         *config.Config
-	storage     *storage.Storage
-	RedisClient *redis.RDB
-	tokenAuth   *jwtauth.JWTAuth
+	cfg            *config.Config
+	tokenAuth      *jwtauth.JWTAuth
+	log            *slog.Logger
+	authClient     *client.AuthClient
+	wishClient     *client.WishlisterClient
+	requestCounter prometheus.Counter
+	responseTime   prometheus.Histogram
+	errorCounter   prometheus.Counter
+	activeRequests prometheus.Gauge
 }
 
-func New(cfg *config.Config, storage *storage.Storage, rdb *redis.RDB) *Server {
+func New(cfg *config.Config, log *slog.Logger, authClient *client.AuthClient, wishClient *client.WishlisterClient) *Server {
 	tokenAuth := jwtauth.New("HS256", []byte(cfg.App.SecretKey), nil)
-	return &Server{cfg, storage, rdb, tokenAuth}
+	server := &Server{cfg, tokenAuth, log, authClient, wishClient, nil, nil, nil, nil}
+	server.initMetrics()
+	return server
 }
 
 func (s *Server) Start() {
@@ -44,7 +49,14 @@ func (s *Server) Start() {
 	serverErr := make(chan error, 1)
 
 	go func() {
-		fmt.Printf("Gateway starting on %s\n", srv.Addr)
+		runMode := os.Args[1]
+		if runMode != "production" {
+			s.log.Info("Gateway server started",
+				"address", s.cfg.App.Address,
+				"port", s.cfg.App.Port,
+				"metrics", fmt.Sprintf("http://%s:%s/metrics", s.cfg.App.Address, s.cfg.App.Port))
+		}
+
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			serverErr <- err
 		}
@@ -55,73 +67,57 @@ func (s *Server) Start() {
 
 	select {
 	case <-quit:
-		fmt.Println("\nShutting down server...")
+		s.log.Info("Shutting down server...")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := srv.Shutdown(ctx); err != nil {
-			fmt.Printf("Server forced to shutdown: %v\n", err)
+			s.log.Error("Server forced to shutdown", "error", err)
 		}
-		fmt.Println("Server exited properly")
+		s.log.Info("Server exited properly")
 	case err := <-serverErr:
-		fmt.Printf("Server error: %v\n", err)
+		s.log.Error("Server error", "error", err)
 	}
 }
+
 func (s *Server) createRouter() http.Handler {
 	router := chi.NewRouter()
+
 	router.Use(middleware.Logger)
 	router.Use(corsMiddleware)
+	router.Use(s.metricsMiddleware)
 
-	router.Mount("/auth", s.authRoutes())
-	router.Mount("/api", s.apiRoutes())
-	router.Mount("/docs", s.apiSwagger())
+	runMode := os.Args[1]
+
+	if runMode != "production" {
+		router.Handle("/metrics", promhttp.Handler())
+		router.Mount("/docs", s.redocRoutes())
+		s.log.Info("Redoc documentation available",
+			"address", s.cfg.App.Address,
+			"port", s.cfg.App.Port,
+			"url", fmt.Sprintf("http://%s:%s/docs", s.cfg.App.Address, s.cfg.App.Port))
+	}
+	router.Mount("/api/v1", s.apiRoutes())
 
 	return router
 }
 
-func (s *Server) authRoutes() http.Handler {
-	r := chi.NewRouter()
-	authHandler := authhandler.New(s.cfg, s.storage, slog.Default())
-	wishhandler := wishlist.New(s.cfg, s.storage, s.RedisClient, slog.Default())
-
-	r.Post("/sign_up", authHandler.SignUp)
-	r.Post("/login", authHandler.SignIn)
-	r.Get("/get_wishlist", wishhandler.GetShareList)
-	return r
-}
-
 func (s *Server) apiRoutes() http.Handler {
 	r := chi.NewRouter()
+	apiImpl := handlers.NewAPIImplementation(s.authClient, s.wishClient, s.log, s.tokenAuth)
 
-	r.Use(jwtauth.Verifier(s.tokenAuth))
-	r.Use(jwtauth.Authenticator(s.tokenAuth))
-
-	r.Mount("/wish", routes.NewWishlistRouter(s.cfg, s.storage, s.RedisClient))
-
-	return r
-}
-
-func (s *Server) apiSwagger() http.Handler {
-	r := chi.NewRouter()
-
-	r.Get("/*", httpSwagger.Handler(
-		httpSwagger.URL("/docs/swagger.json"),
-	))
-
-	return r
-}
-
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
+	r.Group(func(r chi.Router) {
+		r.Post("/auth/login", apiImpl.PostAuthLogin)
+		r.Post("/auth/signup", apiImpl.PostAuthSignup)
+		r.Get("/wishes/shared", apiImpl.GetWishesShared)
 	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(s.tokenAuth))
+		r.Use(jwtauth.Authenticator(s.tokenAuth))
+
+		apiHandler := api.Handler(apiImpl)
+		r.Mount("/", apiHandler)
+	})
+
+	return r
 }

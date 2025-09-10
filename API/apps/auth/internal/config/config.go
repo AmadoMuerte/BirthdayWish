@@ -10,15 +10,16 @@ import (
 
 type Config struct {
 	App struct {
-		Port string `envconfig:"WISHLISTER_SERVICE_PORT" default:"50052"`
-		Host string `envconfig:"WISHLISTER_SERVICE_HOST" default:"0.0.0.0"`
+		Port      string `envconfig:"AUTH_SERVICE_PORT" default:"50051"`
+		Host      string `envconfig:"AUTH_SERVICE_HOST" default:"0.0.0.0"`
+		SecretKey string `envconfig:"SECRET_KEY" default:"bibibibiba"`
 	}
 	DB struct {
-		Host string `envconfig:"WISH_DB_HOST" default:"localhost"`
-		Name string `envconfig:"WISH_DB_NAME" default:"wish_service"`
-		User string `envconfig:"WISH_DB_USER" default:"postgres"`
-		Pass string `envconfig:"WISH_DB_PASS" default:"postgres"`
-		Port string `envconfig:"WISH_DB_PORT" default:"5434"`
+		Host string `envconfig:"AUTH_DB_HOST" default:"localhost"`
+		Name string `envconfig:"AUTH_DB_NAME" default:"users_service"`
+		User string `envconfig:"AUTH_DB_USER" default:"postgres"`
+		Pass string `envconfig:"AUTH_DB_PASS" default:"postgres"`
+		Port string `envconfig:"AUTH_DB_PORT" default:"5433"`
 	}
 }
 

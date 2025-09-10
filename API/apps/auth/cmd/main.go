@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/server"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/service"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/server"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/service"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/storage"
 	"github.com/AmadoMuerte/BirthdayWish/API/pkg/logger"
 )
 
@@ -20,7 +20,7 @@ func main() {
 	runMode := os.Args[1]
 	envPath := filepath.Join(wd, "/../../.env")
 	if runMode == "production" {
-		envPath = filepath.Join(wd, "/apps/wishlister/.env")
+		envPath = filepath.Join(wd, "/apps/auth/.env")
 	}
 
 	cfg, err := config.NewConfig(&envPath)
@@ -28,6 +28,7 @@ func main() {
 		err = fmt.Errorf("config error: %w", err)
 		panic(err)
 	}
+
 	log := logger.SetupLogger(runMode)
 
 	storage, err := storage.NewStorage(cfg)
@@ -36,9 +37,9 @@ func main() {
 		panic(err)
 	}
 
-	wishService := service.NewWishService(storage, log)
+	authService := service.NewAuthService(storage, log, cfg.App.SecretKey)
 
-	server := server.New(cfg, storage, wishService, log)
+	server := server.New(cfg, storage, authService, log)
 	server.Start()
 
 	defer storage.Close()

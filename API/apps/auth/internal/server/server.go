@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/config"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/service"
-	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/storage"
-	wishProto "github.com/AmadoMuerte/BirthdayWish/API/proto/wish"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/service"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/storage"
+	authProto "github.com/AmadoMuerte/BirthdayWish/API/proto/auth"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"google.golang.org/grpc"
@@ -23,7 +23,7 @@ import (
 type Server struct {
 	cfg            *config.Config
 	storage        *storage.Storage
-	wishService    *service.WishService
+	authService    *service.AuthService
 	grpcServer     *grpc.Server
 	log            *slog.Logger
 	requestCounter prometheus.Counter
@@ -31,11 +31,11 @@ type Server struct {
 	errorCounter   prometheus.Counter
 }
 
-func New(cfg *config.Config, storage *storage.Storage, wishService *service.WishService, log *slog.Logger) *Server {
+func New(cfg *config.Config, storage *storage.Storage, authService *service.AuthService, log *slog.Logger) *Server {
 	server := &Server{
 		cfg:         cfg,
 		storage:     storage,
-		wishService: wishService,
+		authService: authService,
 		log:         log,
 	}
 	server.initMetrics()
@@ -47,7 +47,7 @@ func (s *Server) initMetrics() {
 		Name: "grpc_requests_total",
 		Help: "Total number of gRPC requests",
 		ConstLabels: prometheus.Labels{
-			"service": "wish",
+			"service": "auth",
 		},
 	})
 
@@ -56,7 +56,7 @@ func (s *Server) initMetrics() {
 		Help:    "Duration of gRPC requests",
 		Buckets: []float64{0.01, 0.05, 0.1, 0.5, 1, 2},
 		ConstLabels: prometheus.Labels{
-			"service": "wish",
+			"service": "auth",
 		},
 	})
 
@@ -64,7 +64,7 @@ func (s *Server) initMetrics() {
 		Name: "grpc_errors_total",
 		Help: "Total number of gRPC errors",
 		ConstLabels: prometheus.Labels{
-			"service": "wish",
+			"service": "auth",
 		},
 	})
 }
@@ -74,7 +74,7 @@ func (s *Server) Start() {
 		grpc.UnaryInterceptor(s.metricsInterceptor),
 	)
 
-	wishProto.RegisterWishServiceServer(s.grpcServer, s.wishService)
+	authProto.RegisterAuthServiceServer(s.grpcServer, s.authService)
 
 	runMode := os.Args[1]
 	if runMode != "production" {
@@ -90,7 +90,7 @@ func (s *Server) Start() {
 	serverErr := make(chan error, 1)
 
 	go func() {
-		s.log.Info("Wish service started",
+		s.log.Info("Auth service started",
 			"host", s.cfg.App.Host,
 			"port", s.cfg.App.Port,
 			"mode", runMode)
@@ -106,7 +106,7 @@ func (s *Server) Start() {
 
 	select {
 	case <-quit:
-		s.log.Info("Shutting down wish service...")
+		s.log.Info("Shutting down auth service...")
 		s.Stop()
 	case err := <-serverErr:
 		s.log.Error("Server error", "error", err)
@@ -118,7 +118,7 @@ func (s *Server) Stop() {
 	if s.grpcServer != nil {
 		s.grpcServer.GracefulStop()
 	}
-	s.log.Info("Wish service stopped")
+	s.log.Info("Auth service stopped")
 }
 
 func (s *Server) metricsInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {

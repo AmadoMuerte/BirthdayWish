@@ -1,27 +1,45 @@
 .PHONY: up
 
 db:
-	docker-compose up -d
+	podman compose up -d
 
-# need to install parallel: 
-# brew install parallel 
-# sudo apt install parallel
-# npm install -g parallel
-# pacman -S parallel 
-run-all:
-	@parallel --linebuffer --tagstring '{#}' ::: \
-		"cd apps/gateway && go run cmd/main.go" \
-		"cd apps/wishlister && go run cmd/main.go" \
-		"cd apps/filer && go run cmd/main.go"
+metrics:
+	podman compose -f docker-compose.monitoring.yml up -d
 
+.PHONY: build build-auth build-gateway build-wishlister docker-up docker-down docker-logs
 
-gateway:
-	go run apps/gateway/cmd/main.go
+build:
+	@echo "Building all services..."
+	go build -o bin/auth ./apps/auth/cmd/
+	go build -o bin/gateway ./apps/gateway/cmd/
+	go build -o bin/wishlister ./apps/wishlister/cmd/
 
-wishlister:
-	cd apps/wishlister && go run cmd/main.go
+build-auth:
+	go build -o bin/auth ./apps/auth/cmd/
 
+build-gateway:
+	go build -o bin/gateway ./apps/gateway/cmd/
 
-filer:
-	cd apps/filer && go run cmd/main.go
+build-wishlister:
+	go build -o bin/wishlister ./apps/wishlister/cmd/
 
+docker-up:
+	podman-compose -f docker-compose.yml up --build
+
+docker-down:
+	podman-compose -f docker-compose.yml down
+
+docker-logs:
+	podman-compose -f docker-compose.yml logs -f
+
+docker-logs-auth:
+	podman-compose -f docker-compose.yml logs -f auth-service
+
+docker-logs-gateway:
+	podman-compose -f docker-compose.yml logs -f gateway-service
+
+docker-logs-wishlister:
+	podman-compose -f docker-compose.yml logs -f wishlister-service
+
+docker-restart:
+	podman-compose -f docker-compose.yml restart
