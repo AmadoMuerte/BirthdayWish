@@ -54,7 +54,13 @@ func (s *Server) Start() {
 			s.log.Info("Gateway server started",
 				"address", s.cfg.App.Address,
 				"port", s.cfg.App.Port,
+				"mode", *s.runMode,
 				"metrics", fmt.Sprintf("http://%s:%s/metrics", s.cfg.App.Address, s.cfg.App.Port))
+		} else {
+			s.log.Info("Gateway server started",
+				"address", s.cfg.App.Address,
+				"port", s.cfg.App.Port,
+				"mode", *s.runMode)
 		}
 
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
