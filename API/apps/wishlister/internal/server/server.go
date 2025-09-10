@@ -91,6 +91,7 @@ func (s *Server) Start() {
 
 	go func() {
 		s.log.Info("Wish service started",
+			"host", s.cfg.App.Host,
 			"port", s.cfg.App.Port,
 			"mode", runMode)
 

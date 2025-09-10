@@ -13,9 +13,9 @@ type Config struct {
 		Address                  string `envconfig:"APP_ADDRESS" default:"localhost"`
 		Port                     string `envconfig:"APP_PORT" default:"3030"`
 		SecretKey                string `envconfig:"SECRET_KEY" default:"bibibibiba"`
-		AuthServiceAddress       string `envconfig:"AUTH_SERVICE_HOST" default:"localhost"`
+		AuthServiceAddress       string `envconfig:"AUTH_DOCKER_SERVICE_HOST" default:"auth-service"`
 		AuthServicePort          string `envconfig:"AUTH_SERVICE_PORT" default:"50051"`
-		WishlisterServiceAddress string `envconfig:"WISHLISTER_SERVICE_HOST" default:"localhost"`
+		WishlisterServiceAddress string `envconfig:"WISH_DOCKER_SERVICE_HOST" default:"wishlister-service"`
 		WishlisterServicePort    string `envconfig:"WISHLISTER_SERVICE_PORT" default:"50052"`
 	}
 }

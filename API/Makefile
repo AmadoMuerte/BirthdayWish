@@ -24,7 +24,7 @@ build-wishlister:
 	go build -o bin/wishlister ./apps/wishlister/cmd/
 
 docker-up:
-	podman-compose -f docker-compose.yml up -d --build
+	podman-compose -f docker-compose.yml up --build
 
 docker-down:
 	podman-compose -f docker-compose.yml down

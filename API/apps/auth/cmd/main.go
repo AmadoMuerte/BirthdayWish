@@ -30,7 +30,6 @@ func main() {
 	}
 
 	log := logger.SetupLogger(runMode)
-	log.Info("Starting auth service", "host", cfg.DB.Host, "port", cfg.DB.Port)
 
 	storage, err := storage.NewStorage(cfg)
 	if err != nil {
