@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package filer;
+option go_package = "../filer";
+
+service FilerService {
+  rpc LoadImage(LoadImageRequest) returns (LoadImageResponse);
+}
+
+message LoadImageRequest {
+  string image_base64 = 1;
+}
+
+message LoadImageResponse {
+  string image_url = 1;
+}
+
