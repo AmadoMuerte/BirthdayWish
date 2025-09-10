@@ -8,7 +8,7 @@ build:
 
 # Запуск сервера
 run:
-	go run cmd/main.go
+	go run cmd/main.go -mode development
 
 # Установка зависимостей
 deps:

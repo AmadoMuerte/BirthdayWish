@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,13 +14,16 @@ import (
 )
 
 func main() {
+	runMode := flag.String("mode", "development", "Run mode: development or production")
+	flag.Parse()
+
 	wd, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
-	runMode := os.Args[1]
+
 	envPath := filepath.Join(wd, "/../../.env")
-	if runMode == "production" {
+	if *runMode == "production" {
 		envPath = filepath.Join(wd, "/apps/wishlister/.env")
 	}
 
@@ -28,7 +32,7 @@ func main() {
 		err = fmt.Errorf("config error: %w", err)
 		panic(err)
 	}
-	log := logger.SetupLogger(runMode)
+	log := logger.SetupLogger(*runMode)
 
 	storage, err := storage.NewStorage(cfg)
 	if err != nil {
@@ -38,7 +42,7 @@ func main() {
 
 	wishService := service.NewWishService(storage, log)
 
-	server := server.New(cfg, storage, wishService, log)
+	server := server.New(runMode, cfg, storage, wishService, log)
 	server.Start()
 
 	defer storage.Close()

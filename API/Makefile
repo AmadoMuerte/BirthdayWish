@@ -6,22 +6,16 @@ db:
 metrics:
 	podman compose -f docker-compose.monitoring.yml up -d
 
-.PHONY: build build-auth build-gateway build-wishlister docker-up docker-down docker-logs
+.PHONY: docker-up docker-down docker-logs
 
-build:
-	@echo "Building all services..."
-	go build -o bin/auth ./apps/auth/cmd/
-	go build -o bin/gateway ./apps/gateway/cmd/
-	go build -o bin/wishlister ./apps/wishlister/cmd/
+run-auth:
+	cd apps/auth && go run cmd/main.go
 
-build-auth:
-	go build -o bin/auth ./apps/auth/cmd/
+run-gateway:
+	cd apps/gateway && go run cmd/main.go
 
-build-gateway:
-	go build -o bin/gateway ./apps/gateway/cmd/
-
-build-wishlister:
-	go build -o bin/wishlister ./apps/wishlister/cmd/
+run-wishlister:
+	cd apps/wishlister && go run cmd/main.go
 
 docker-up:
 	podman-compose -f docker-compose.yml up --build

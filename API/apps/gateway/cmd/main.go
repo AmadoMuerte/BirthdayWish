@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,13 +13,16 @@ import (
 )
 
 func main() {
+	runMode := flag.String("mode", "development", "Run mode: development or production")
+	flag.Parse()
+
 	wd, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
-	runMode := os.Args[1]
+
 	envPath := filepath.Join(wd, "/../../.env")
-	if runMode == "production" {
+	if *runMode == "production" {
 		envPath = filepath.Join(wd, "/apps/gateway/.env")
 	}
 
@@ -27,7 +31,7 @@ func main() {
 		err = fmt.Errorf("config error: %w", err)
 		panic(err)
 	}
-	log := logger.SetupLogger(runMode)
+	log := logger.SetupLogger(*runMode)
 
 	authAddr := fmt.Sprintf("%s:%s", cfg.App.AuthServiceAddress, cfg.App.AuthServicePort)
 	authClient, err := client.NewAuthClient(authAddr, log)
@@ -43,6 +47,6 @@ func main() {
 		panic(err)
 	}
 
-	server := server.New(cfg, log, authClient, wishClient)
+	server := server.New(runMode, cfg, log, authClient, wishClient)
 	server.Start()
 }
