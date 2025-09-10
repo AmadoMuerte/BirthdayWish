@@ -22,4 +22,4 @@ COPY --from=builder --chown=app:app /app/apps/wishlister/internal/storage/migrat
 WORKDIR /app
 EXPOSE 50052
 
-CMD ["./apps/wishlister/wishlister", "production"]
+CMD ["./apps/wishlister/wishlister", "-mode", "production"]

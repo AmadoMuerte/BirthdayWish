@@ -20,4 +20,4 @@ COPY --from=builder --chown=app:app /app/.env /app/apps/gateway/.env
 WORKDIR /app
 EXPOSE 3030
 
-CMD ["./apps/gateway/gateway", "production"]
+CMD ["./apps/gateway/gateway", "-mode", "production"]

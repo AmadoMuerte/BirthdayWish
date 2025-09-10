@@ -21,6 +21,7 @@ import (
 )
 
 type Server struct {
+	runMode        *string
 	cfg            *config.Config
 	storage        *storage.Storage
 	authService    *service.AuthService
@@ -31,8 +32,9 @@ type Server struct {
 	errorCounter   prometheus.Counter
 }
 
-func New(cfg *config.Config, storage *storage.Storage, authService *service.AuthService, log *slog.Logger) *Server {
+func New(runMode *string, cfg *config.Config, storage *storage.Storage, authService *service.AuthService, log *slog.Logger) *Server {
 	server := &Server{
+		runMode:     runMode,
 		cfg:         cfg,
 		storage:     storage,
 		authService: authService,
@@ -76,8 +78,7 @@ func (s *Server) Start() {
 
 	authProto.RegisterAuthServiceServer(s.grpcServer, s.authService)
 
-	runMode := os.Args[1]
-	if runMode != "production" {
+	if *s.runMode != "production" {
 		reflection.Register(s.grpcServer)
 	}
 
@@ -93,7 +94,7 @@ func (s *Server) Start() {
 		s.log.Info("Auth service started",
 			"host", s.cfg.App.Host,
 			"port", s.cfg.App.Port,
-			"mode", runMode)
+			"mode", *s.runMode)
 
 		if err := s.grpcServer.Serve(lis); err != nil {
 			serverErr <- err

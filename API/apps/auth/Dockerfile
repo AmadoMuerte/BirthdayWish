@@ -23,4 +23,4 @@ COPY --from=builder --chown=app:app /app/apps/auth/internal/storage/migrations /
 WORKDIR /app
 EXPOSE 50051
 
-CMD ["./apps/auth/auth", "production"]
+CMD ["./apps/auth/auth", "-mode", "production"]

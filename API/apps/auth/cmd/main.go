@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,23 +14,26 @@ import (
 )
 
 func main() {
+	runMode := flag.String("mode", "development", "Run mode: development or production")
+	flag.Parse()
+
 	wd, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
-	runMode := os.Args[1]
+
 	envPath := filepath.Join(wd, "/../../.env")
-	if runMode == "production" {
+	if *runMode == "production" {
 		envPath = filepath.Join(wd, "/apps/auth/.env")
 	}
+
+	log := logger.SetupLogger(*runMode)
 
 	cfg, err := config.NewConfig(&envPath)
 	if err != nil {
 		err = fmt.Errorf("config error: %w", err)
 		panic(err)
 	}
-
-	log := logger.SetupLogger(runMode)
 
 	storage, err := storage.NewStorage(cfg)
 	if err != nil {
@@ -39,7 +43,7 @@ func main() {
 
 	authService := service.NewAuthService(storage, log, cfg.App.SecretKey)
 
-	server := server.New(cfg, storage, authService, log)
+	server := server.New(runMode, cfg, storage, authService, log)
 	server.Start()
 
 	defer storage.Close()

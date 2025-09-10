@@ -20,6 +20,7 @@ import (
 )
 
 type Server struct {
+	runMode        *string
 	cfg            *config.Config
 	tokenAuth      *jwtauth.JWTAuth
 	log            *slog.Logger
@@ -31,9 +32,9 @@ type Server struct {
 	activeRequests prometheus.Gauge
 }
 
-func New(cfg *config.Config, log *slog.Logger, authClient *client.AuthClient, wishClient *client.WishlisterClient) *Server {
+func New(runMode *string, cfg *config.Config, log *slog.Logger, authClient *client.AuthClient, wishClient *client.WishlisterClient) *Server {
 	tokenAuth := jwtauth.New("HS256", []byte(cfg.App.SecretKey), nil)
-	server := &Server{cfg, tokenAuth, log, authClient, wishClient, nil, nil, nil, nil}
+	server := &Server{runMode, cfg, tokenAuth, log, authClient, wishClient, nil, nil, nil, nil}
 	server.initMetrics()
 	return server
 }
@@ -49,8 +50,7 @@ func (s *Server) Start() {
 	serverErr := make(chan error, 1)
 
 	go func() {
-		runMode := os.Args[1]
-		if runMode != "production" {
+		if *s.runMode != "production" {
 			s.log.Info("Gateway server started",
 				"address", s.cfg.App.Address,
 				"port", s.cfg.App.Port,
@@ -86,9 +86,7 @@ func (s *Server) createRouter() http.Handler {
 	router.Use(corsMiddleware)
 	router.Use(s.metricsMiddleware)
 
-	runMode := os.Args[1]
-
-	if runMode != "production" {
+	if *s.runMode != "production" {
 		router.Handle("/metrics", promhttp.Handler())
 		router.Mount("/docs", s.redocRoutes())
 		s.log.Info("Redoc documentation available",
