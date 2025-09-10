@@ -11,12 +11,11 @@ import (
 type Config struct {
 	App struct {
 		Port      string `envconfig:"AUTH_SERVICE_PORT" default:"50051"`
-		Host      string `envconfig:"APP_ADDRESS" default:"0.0.0.0"`
-		Mode      string `envconfig:"RUN_MODE" default:"dev"`
+		Host      string `envconfig:"AUTH_SERVICE_HOST" default:"0.0.0.0"`
 		SecretKey string `envconfig:"SECRET_KEY" default:"bibibibiba"`
 	}
 	DB struct {
-		Host string `envconfig:"DB_HOST" default:"localhost"`
+		Host string `envconfig:"AUTH_DB_HOST" default:"localhost"`
 		Name string `envconfig:"AUTH_DB_NAME" default:"users_service"`
 		User string `envconfig:"AUTH_DB_USER" default:"postgres"`
 		Pass string `envconfig:"AUTH_DB_PASS" default:"postgres"`

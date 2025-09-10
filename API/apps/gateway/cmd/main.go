@@ -16,24 +16,27 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	runMode := os.Args[1]
 	envPath := filepath.Join(wd, "/../../.env")
+	if runMode == "production" {
+		envPath = filepath.Join(wd, "/apps/gateway/.env")
+	}
 
 	cfg, err := config.NewConfig(&envPath)
 	if err != nil {
-		err = fmt.Errorf("Config error: %s", err)
+		err = fmt.Errorf("config error: %w", err)
 		panic(err)
 	}
+	log := logger.SetupLogger(runMode)
 
-	log := logger.SetupLogger(cfg.App.Mode)
-
-	authAddr := fmt.Sprintf("%s:%s", cfg.App.Address, cfg.App.AuthServicePort)
+	authAddr := fmt.Sprintf("%s:%s", cfg.App.AuthServiceAddress, cfg.App.AuthServicePort)
 	authClient, err := client.NewAuthClient(authAddr, log)
 	if err != nil {
 		err = fmt.Errorf("Auth client error: %s", err)
 		panic(err)
 	}
 
-	wishAddr := fmt.Sprintf("%s:%s", cfg.App.Address, cfg.App.WishlisterServicePort)
+	wishAddr := fmt.Sprintf("%s:%s", cfg.App.WishlisterServiceAddress, cfg.App.WishlisterServicePort)
 	wishClient, err := client.NewWishlisterClient(wishAddr, log)
 	if err != nil {
 		err = fmt.Errorf("Wishlister client error: %s", err)

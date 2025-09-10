@@ -1,80 +1,84 @@
-version: "3.8"
-
 services:
   auth-db:
-    image: postgres:alpine
-    restart: always
-    shm_size: 128mb
-    volumes:
-      - auth_db_data:/var/lib/postgresql/data
-      - type: tmpfs
-        target: /dev/shm
-        tmpfs:
-          size: 134217728
+    image: postgres:17-alpine
+    container_name: auth-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: users_service
     ports:
       - "5433:5432"
-    networks:
-      - db_network
-  wish-db:
-    image: postgres:alpine
-    restart: always
-    shm_size: 128mb
     volumes:
-      - wish_db_data:/var/lib/postgresql/data
-      - type: tmpfs
-        target: /dev/shm
-        tmpfs:
-          size: 134217728
+      - auth_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - birthdaywish
+  wish-db:
+    image: postgres:17-alpine
+    container_name: wish-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: wish_service
     ports:
       - "5434:5432"
-    networks:
-      - db_network
-
-  minio:
-    image: minio/minio
-    restart: always
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      - MINIO_ROOT_USER=${MINIO_USER:-minioadmin}
-      - MINIO_ROOT_PASSWORD=${MINIO_PASS:-minioadmin}
     volumes:
-      - minio_data:/data
-    command: server /data --console-address ":9001"
+      - wish_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
     networks:
-      - app_network
+      - birthdaywish
 
-  pgadmin:
-    image: dpage/pgadmin4
-    restart: always
-    depends_on:
-      - db
-      - auth-db
+  gateway-service:
+    build:
+      dockerfile: apps/gateway/Dockerfile
+    container_name: gateway-service
     ports:
-      - "8080:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      - "3030:3030"
+    restart: unless-stopped
     networks:
-      - db_network
+      - birthdaywish
+
+  auth-service:
+    build:
+      dockerfile: apps/auth/Dockerfile
+    container_name: auth-service
+    ports:
+      - "${AUTH_SERVICE_PORT}:50051"
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - birthdaywish
+
+  wishlister-service:
+    build:
+      dockerfile: apps/wishlister/Dockerfile
+    container_name: wishlister-service
+    ports:
+      - "${WISHLISTER_SERVICE_PORT}:50052"
+    depends_on:
+      wish-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - birthdaywish
+networks:
+  birthdaywish:
+    driver: bridge
 
 volumes:
   auth_db_data:
+    driver: local
   wish_db_data:
-  minio_data:
-  redis_data:
-
-networks:
-  app_network:
-    driver: bridge
-  db_network:
-    driver: bridge
+    driver: local

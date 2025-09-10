@@ -11,11 +11,10 @@ import (
 type Config struct {
 	App struct {
 		Port string `envconfig:"WISHLISTER_SERVICE_PORT" default:"50052"`
-		Host string `envconfig:"APP_ADDRESS" default:"0.0.0.0"`
-		Mode string `envconfig:"RUN_MODE" default:"dev"`
+		Host string `envconfig:"WISHLISTER_SERVICE_HOST" default:"0.0.0.0"`
 	}
 	DB struct {
-		Host string `envconfig:"DB_HOST" default:"localhost"`
+		Host string `envconfig:"WISH_DB_HOST" default:"localhost"`
 		Name string `envconfig:"WISH_DB_NAME" default:"wish_service"`
 		User string `envconfig:"WISH_DB_USER" default:"postgres"`
 		Pass string `envconfig:"WISH_DB_PASS" default:"postgres"`

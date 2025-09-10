@@ -49,10 +49,13 @@ func (s *Server) Start() {
 	serverErr := make(chan error, 1)
 
 	go func() {
-		s.log.Info("Gateway server started",
-			"address", s.cfg.App.Address,
-			"port", s.cfg.App.Port,
-			"metrics", fmt.Sprintf("http://%s:%s/metrics", s.cfg.App.Address, s.cfg.App.Port))
+		runMode := os.Args[1]
+		if runMode != "production" {
+			s.log.Info("Gateway server started",
+				"address", s.cfg.App.Address,
+				"port", s.cfg.App.Port,
+				"metrics", fmt.Sprintf("http://%s:%s/metrics", s.cfg.App.Address, s.cfg.App.Port))
+		}
 
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			serverErr <- err
@@ -83,16 +86,17 @@ func (s *Server) createRouter() http.Handler {
 	router.Use(corsMiddleware)
 	router.Use(s.metricsMiddleware)
 
-	router.Handle("/metrics", promhttp.Handler())
-	router.Mount("/api/v1", s.apiRoutes())
+	runMode := os.Args[1]
 
-	if s.cfg.App.Mode == "dev" {
+	if runMode != "production" {
+		router.Handle("/metrics", promhttp.Handler())
 		router.Mount("/docs", s.redocRoutes())
 		s.log.Info("Redoc documentation available",
 			"address", s.cfg.App.Address,
 			"port", s.cfg.App.Port,
 			"url", fmt.Sprintf("http://%s:%s/docs", s.cfg.App.Address, s.cfg.App.Port))
 	}
+	router.Mount("/api/v1", s.apiRoutes())
 
 	return router
 }

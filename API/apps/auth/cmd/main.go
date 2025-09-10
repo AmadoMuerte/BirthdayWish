@@ -17,20 +17,26 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	runMode := os.Args[1]
 	envPath := filepath.Join(wd, "/../../.env")
+	if runMode == "production" {
+		envPath = filepath.Join(wd, "/apps/auth/.env")
+	}
 
 	cfg, err := config.NewConfig(&envPath)
 	if err != nil {
 		err = fmt.Errorf("config error: %w", err)
 		panic(err)
 	}
+
+	log := logger.SetupLogger(runMode)
+	log.Info("Starting auth service", "host", cfg.DB.Host, "port", cfg.DB.Port)
+
 	storage, err := storage.NewStorage(cfg)
 	if err != nil {
 		err = fmt.Errorf("db error: %w", err)
 		panic(err)
 	}
-
-	log := logger.SetupLogger(cfg.App.Mode)
 
 	authService := service.NewAuthService(storage, log, cfg.App.SecretKey)
 

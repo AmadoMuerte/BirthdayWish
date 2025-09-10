@@ -17,21 +17,24 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	runMode := os.Args[1]
 	envPath := filepath.Join(wd, "/../../.env")
+	if runMode == "production" {
+		envPath = filepath.Join(wd, "/apps/wishlister/.env")
+	}
 
 	cfg, err := config.NewConfig(&envPath)
 	if err != nil {
 		err = fmt.Errorf("config error: %w", err)
 		panic(err)
 	}
+	log := logger.SetupLogger(runMode)
+
 	storage, err := storage.NewStorage(cfg)
 	if err != nil {
 		err = fmt.Errorf("db error: %w", err)
 		panic(err)
 	}
-
-	log := logger.SetupLogger(cfg.App.Mode)
-	fmt.Println(log)
 
 	wishService := service.NewWishService(storage, log)
 

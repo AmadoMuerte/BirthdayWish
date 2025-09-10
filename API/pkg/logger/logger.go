@@ -77,19 +77,17 @@ func (h *ColorHandler) WithGroup(name string) slog.Handler {
 func SetupLogger(mode string) *slog.Logger {
 	var handler slog.Handler
 
-	if mode == "dev" {
+	if mode == "production" {
+		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelInfo,
+		})
+		slog.SetLogLoggerLevel(slog.LevelInfo)
+	} else {
 		baseHandler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		})
 		handler = &ColorHandler{handler: baseHandler, writer: os.Stdout}
 		slog.SetLogLoggerLevel(slog.LevelDebug)
-	}
-
-	if mode == "prod" {
-		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelInfo,
-		})
-		slog.SetLogLoggerLevel(slog.LevelInfo)
 	}
 
 	logger := slog.New(handler)

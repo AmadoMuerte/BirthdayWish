@@ -76,7 +76,8 @@ func (s *Server) Start() {
 
 	authProto.RegisterAuthServiceServer(s.grpcServer, s.authService)
 
-	if s.cfg.App.Mode == "dev" {
+	runMode := os.Args[1]
+	if runMode != "production" {
 		reflection.Register(s.grpcServer)
 	}
 
@@ -91,7 +92,7 @@ func (s *Server) Start() {
 	go func() {
 		s.log.Info("Auth service started",
 			"port", s.cfg.App.Port,
-			"mode", s.cfg.App.Mode)
+			"mode", runMode)
 
 		if err := s.grpcServer.Serve(lis); err != nil {
 			serverErr <- err
