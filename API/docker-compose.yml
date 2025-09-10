@@ -38,13 +38,25 @@ services:
     networks:
       - birthdaywish
 
-  gateway-service:
-    build:
-      dockerfile: apps/gateway/Dockerfile
-    container_name: gateway-service
+  filer-db:
+    image: minio/minio
+    container_name: filer-db
+    restart: always
     ports:
-      - "3030:3030"
-    restart: unless-stopped
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - filer_db_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    command: server /data --console-address ":9001"
     networks:
       - birthdaywish
 
@@ -73,6 +85,37 @@ services:
     restart: unless-stopped
     networks:
       - birthdaywish
+
+  filer-service:
+    build:
+      dockerfile: apps/filer/Dockerfile
+    container_name: filer-service
+    ports:
+      - "${FILER_SERVICE_PORT}:50053"
+    depends_on:
+      filer-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - birthdaywish
+
+  gateway-service:
+    build:
+      dockerfile: apps/gateway/Dockerfile
+    container_name: gateway-service
+    ports:
+      - "3030:3030"
+    depends_on:
+      filer-service:
+        condition: service_started
+      auth-service:
+        condition: service_started
+      wishlister-service:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - birthdaywish
+      
 networks:
   birthdaywish:
     driver: bridge
@@ -81,4 +124,6 @@ volumes:
   auth_db_data:
     driver: local
   wish_db_data:
+    driver: local
+  filer_db_data:
     driver: local
