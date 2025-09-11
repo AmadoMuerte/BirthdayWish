@@ -72,7 +72,11 @@ func (s *Server) initMetrics() {
 }
 
 func (s *Server) Start() {
+	maxMsgSize := 20 * 1024 * 1024 // 20MB
+
 	s.grpcServer = grpc.NewServer(
+		grpc.MaxRecvMsgSize(maxMsgSize),
+		grpc.MaxSendMsgSize(maxMsgSize),
 		grpc.UnaryInterceptor(s.metricsInterceptor),
 	)
 
