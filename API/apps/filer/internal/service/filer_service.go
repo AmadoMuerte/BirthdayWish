@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/storage"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/util"
 	filerProto "github.com/AmadoMuerte/BirthdayWish/API/proto/filer"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
@@ -98,7 +99,18 @@ func (s *FilerService) LoadImage(ctx context.Context, req *filerProto.LoadImageR
 		return nil, fmt.Errorf("invalid base64 data: %w", err)
 	}
 
-	contentType := http.DetectContentType(data)
+	compressedData, contentType, err := util.CompressImage(data, util.DefaultCompressionConfig)
+	if err != nil {
+		s.log.Warn("Failed to compress image, using original", "error", err)
+		compressedData = data
+		contentType = http.DetectContentType(data)
+	}
+
+	s.log.Debug("Image processing complete",
+		"originalSize", len(data),
+		"finalSize", len(compressedData),
+		"contentType", contentType)
+
 	var fileExt string
 
 	switch contentType {
@@ -109,7 +121,7 @@ func (s *FilerService) LoadImage(ctx context.Context, req *filerProto.LoadImageR
 	default:
 		s.log.Error("Unsupported image format",
 			"contentType", contentType,
-			"dataLength", len(data),
+			"dataLength", len(compressedData),
 			"firstBytes", fmt.Sprintf("%x", safeSubstringBytes(data, 0, 8)))
 		return nil, errors.New("unsupported image format")
 	}
@@ -121,8 +133,8 @@ func (s *FilerService) LoadImage(ctx context.Context, req *filerProto.LoadImageR
 		ctx,
 		s.storage.BucketName,
 		storagePath,
-		bytes.NewReader(data),
-		int64(len(data)),
+		bytes.NewReader(compressedData),
+		int64(len(compressedData)),
 		minio.PutObjectOptions{ContentType: contentType},
 	)
 	if err != nil {

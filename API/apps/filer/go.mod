@@ -3,6 +3,11 @@ module github.com/AmadoMuerte/BirthdayWish/API/apps/filer
 go 1.24.7
 
 require (
+	github.com/disintegration/imaging v1.6.2
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+)
+
+require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
@@ -16,6 +21,7 @@ require (
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/tinylib/msgp v1.3.0 // indirect
 	golang.org/x/crypto v0.39.0 // indirect
+	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
