@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/client"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/models"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/storage"
 	wishProto "github.com/AmadoMuerte/BirthdayWish/API/proto/wish"
@@ -12,15 +13,17 @@ import (
 )
 
 type WishService struct {
-	storage *storage.Storage
-	log     *slog.Logger
+	storage     *storage.Storage
+	filerClient *client.FilerClient
+	log         *slog.Logger
 	wishProto.UnimplementedWishServiceServer
 }
 
-func NewWishService(storage *storage.Storage, log *slog.Logger) *WishService {
+func NewWishService(storage *storage.Storage, filerClient *client.FilerClient, log *slog.Logger) *WishService {
 	return &WishService{
-		storage: storage,
-		log:     log,
+		storage:     storage,
+		filerClient: filerClient,
+		log:         log,
 	}
 }
 
@@ -80,9 +83,13 @@ func (s *WishService) UpdateWish(ctx context.Context, req *wishProto.UpdateWishR
 		updateData[k] = v
 	}
 
-	// TODO: Upload image to S3
 	if updateData["image_base64"] != nil {
-		updateData["image_url"] = "https://www.pinterest.com/pin/63261569757704014/"
+		imageUrl, err := s.filerClient.LoadImage(ctx, updateData["image_base64"].(string))
+		if err != nil {
+			s.log.Error("failed to load image", "error", err)
+			return nil, err
+		}
+		updateData["image_url"] = imageUrl.ImageUrl
 	}
 
 	wish, err := s.storage.PartialUpdateWishItem(ctx, req.UserId, req.WishId, updateData)
@@ -106,16 +113,22 @@ func (s *WishService) UpdateWish(ctx context.Context, req *wishProto.UpdateWishR
 }
 
 func (s *WishService) CreateWish(ctx context.Context, req *wishProto.CreateWishRequest) (*wishProto.WishResponse, error) {
-	// TODO: Upload image to S3
-
 	wish := &models.Wish{
 		UserID:      req.UserId,
 		Title:       req.Title,
 		Description: req.Description,
-		ImageURL:    "https://www.pinterest.com/pin/63261569757704014/",
 		Link:        req.Link,
 		Price:       req.Price,
 		Priority:    req.Priority,
+	}
+
+	if req.ImageBase64 != "" {
+		imageUrl, err := s.filerClient.LoadImage(ctx, req.ImageBase64)
+		if err != nil {
+			s.log.Error("failed to load image", "error", err)
+			return nil, err
+		}
+		wish.ImageURL = imageUrl.ImageUrl
 	}
 
 	wish, err := s.storage.AddToWishlist(ctx, *wish)

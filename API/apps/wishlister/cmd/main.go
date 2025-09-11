@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/client"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/server"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/service"
@@ -40,7 +41,15 @@ func main() {
 		panic(err)
 	}
 
-	wishService := service.NewWishService(storage, log)
+	filerClient, err := client.NewFilerClient(cfg.Services.Filer.Host+":"+cfg.Services.Filer.Port, log)
+	if err != nil {
+		err = fmt.Errorf("filer client error: %w", err)
+		panic(err)
+	}
+
+	defer filerClient.Close()
+
+	wishService := service.NewWishService(storage, filerClient, log)
 
 	server := server.New(runMode, cfg, storage, wishService, log)
 	server.Start()
