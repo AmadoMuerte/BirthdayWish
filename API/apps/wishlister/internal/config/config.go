@@ -13,6 +13,12 @@ type Config struct {
 		Port string `envconfig:"WISHLISTER_SERVICE_PORT" default:"50052"`
 		Host string `envconfig:"WISHLISTER_SERVICE_HOST" default:"0.0.0.0"`
 	}
+	Services struct {
+		Filer struct {
+			Host string `envconfig:"FILER_DOCKER_SERVICE_HOST" default:"filer-service"`
+			Port string `envconfig:"FILER_SERVICE_PORT" default:"50053"`
+		}
+	}
 	DB struct {
 		Host string `envconfig:"WISH_DB_HOST" default:"localhost"`
 		Name string `envconfig:"WISH_DB_NAME" default:"wish_service"`

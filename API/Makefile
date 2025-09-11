@@ -1,7 +1,7 @@
 .PHONY: up
 
 db:
-	podman compose up -d
+	podman compose -f docker-compose-db.yml up -d
 
 metrics:
 	podman compose -f docker-compose.monitoring.yml up -d
