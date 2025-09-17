@@ -1,1 +1,0 @@
-export { WishForm } from './ui/wish-form'

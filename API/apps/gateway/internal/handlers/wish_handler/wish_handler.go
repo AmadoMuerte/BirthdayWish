@@ -145,14 +145,36 @@ func (h *WishHandler) CreateWish(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var description string
+	var imageBase64 string
+	var link string
+	var price float64
+	var priority int32
+
+	if req.Description != nil {
+		description = *req.Description
+	}
+	if req.ImageBase64 != nil {
+		imageBase64 = *req.ImageBase64
+	}
+	if req.Link != nil {
+		link = *req.Link
+	}
+	if req.Price != nil {
+		price = *req.Price
+	}
+	if req.Priority != nil {
+		priority = *req.Priority
+	}
+
 	resp, err := h.wishClient.CreateWish(r.Context(), &wishProto.CreateWishRequest{
 		UserId:      claims.UserID,
 		Title:       req.Title,
-		Description: *req.Description,
-		ImageBase64: *req.ImageBase64,
-		Link:        *req.Link,
-		Price:       *req.Price,
-		Priority:    *req.Priority,
+		Description: description,
+		ImageBase64: imageBase64,
+		Link:        link,
+		Price:       price,
+		Priority:    priority,
 	})
 	if err != nil {
 		h.log.Error("Wishlister service CreateWish failed", "error", err)
@@ -340,9 +362,15 @@ func (h *WishHandler) CreateShareLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.ExpiresIn <= 0 {
+		h.log.Error("expires in must be greater than 0", "error", err)
+		response.ErrorResponseJSON(w, r, http.StatusBadRequest, "Invalid request")
+		return
+	}
+
 	resp, err := h.wishClient.CreateShareLink(r.Context(), &wishProto.CreateShareLinkRequest{
 		UserId:    claims.UserID,
-		ExpiresIn: req.ExpiresIn,
+		ExpiresIn: int64(req.ExpiresIn),
 	})
 	if err != nil {
 		h.log.Error("failed to create share link", "error", err)
