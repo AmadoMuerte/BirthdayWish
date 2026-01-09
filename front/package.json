@@ -10,8 +10,13 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "class-variance-authority": "^0.7.1",
     "nuxt": "^4.2.2",
+    "reka-ui": "^2.7.0",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "sass-embedded": "^1.97.1"
   }
 }
