@@ -1,30 +1,7 @@
 <script setup lang="ts">
 import type { ButtonHTMLAttributes } from 'vue'
-import { cva } from 'class-variance-authority'
+import { cva, type VariantProps } from 'class-variance-authority'
 import { Primitive, type PrimitiveProps } from 'reka-ui'
-import type { VariantProps } from 'class-variance-authority'
-
-type ButtonClasses = VariantProps<typeof buttonClasses>
-
-interface Props extends /* @vue-ignore */ ButtonHTMLAttributes, /* @vue-ignore */ PrimitiveProps {
-    variant?: ButtonClasses['variant']
-    size?: ButtonClasses['size']
-    radius?: ButtonClasses['radius']
-    square?: ButtonClasses['square']
-    as?: string
-}
-
-defineOptions({
-    name: 'VButton',
-})
-
-const props = withDefaults(defineProps<Props>(), {
-    variant: 'default',
-    size: 'md',
-    radius: 'md',
-    as: 'button',
-    square: false,
-})
 
 const buttonClasses = cva('button', {
     variants: {
@@ -46,6 +23,28 @@ const buttonClasses = cva('button', {
             true: 'is-square'
         }
     },
+})
+
+type ButtonClasses = VariantProps<typeof buttonClasses>
+
+interface Props extends /* @vue-ignore */ ButtonHTMLAttributes, /* @vue-ignore */ PrimitiveProps {
+    variant?: ButtonClasses['variant']
+    size?: ButtonClasses['size']
+    radius?: ButtonClasses['radius']
+    square?: ButtonClasses['square']
+    as?: string
+}
+
+defineOptions({
+    name: 'Button',
+})
+
+const props = withDefaults(defineProps<Props>(), {
+    variant: 'default',
+    size: 'md',
+    radius: 'md',
+    as: 'button',
+    square: false,
 })
 </script>
 
