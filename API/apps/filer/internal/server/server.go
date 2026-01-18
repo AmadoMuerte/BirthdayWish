@@ -13,7 +13,7 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/service"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/storage"
-	filerProto "github.com/AmadoMuerte/BirthdayWish/API/proto/filer"
+	filerProto "github.com/AmadoMuerte/BirthdayWish/API/shared/proto/filer"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"google.golang.org/grpc"

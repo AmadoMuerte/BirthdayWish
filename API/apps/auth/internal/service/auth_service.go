@@ -10,7 +10,7 @@ import (
 
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/models"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/storage"
-	authProto "github.com/AmadoMuerte/BirthdayWish/API/proto/auth"
+	authProto "github.com/AmadoMuerte/BirthdayWish/API/shared/proto/auth"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )

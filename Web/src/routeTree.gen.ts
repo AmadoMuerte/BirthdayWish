@@ -8,226 +8,86 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as SharelistRouteImport } from './routes/sharelist'
+import { Route as RegistrationRouteImport } from './routes/registration'
+import { Route as LogoutRouteImport } from './routes/logout'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AppRouteRouteImport } from './routes/app/route'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppSettingsRouteImport } from './routes/app/settings'
+import { Route as AppFriendsRouteImport } from './routes/app/friends'
+import { Route as AppWishesIndexRouteImport } from './routes/app/wishes/index'
+import { Route as AppWishesCreateRouteImport } from './routes/app/wishes/create'
+import { Route as AppWishesIdIndexRouteImport } from './routes/app/wishes/$id/index'
+import { Route as AppWishesIdUpdateRouteImport } from './routes/app/wishes/$id/update'
+import { Route as AppWishesIdEditRouteImport } from './routes/app/wishes/$id/edit'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as SharelistImport } from './routes/sharelist'
-import { Route as RegistrationImport } from './routes/registration'
-import { Route as LogoutImport } from './routes/logout'
-import { Route as LoginImport } from './routes/login'
-import { Route as AppRouteImport } from './routes/app/route'
-import { Route as IndexImport } from './routes/index'
-import { Route as AppSettingsImport } from './routes/app/settings'
-import { Route as AppFriendsImport } from './routes/app/friends'
-import { Route as AppWishesIndexImport } from './routes/app/wishes/index'
-import { Route as AppWishesCreateImport } from './routes/app/wishes/create'
-import { Route as AppWishesIdIndexImport } from './routes/app/wishes/$id/index'
-import { Route as AppWishesIdUpdateImport } from './routes/app/wishes/$id/update'
-import { Route as AppWishesIdEditImport } from './routes/app/wishes/$id/edit'
-
-// Create/Update Routes
-
-const SharelistRoute = SharelistImport.update({
+const SharelistRoute = SharelistRouteImport.update({
   id: '/sharelist',
   path: '/sharelist',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const RegistrationRoute = RegistrationImport.update({
+const RegistrationRoute = RegistrationRouteImport.update({
   id: '/registration',
   path: '/registration',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const LogoutRoute = LogoutImport.update({
+const LogoutRoute = LogoutRouteImport.update({
   id: '/logout',
   path: '/logout',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const LoginRoute = LoginImport.update({
+const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AppRouteRoute = AppRouteImport.update({
+const AppRouteRoute = AppRouteRouteImport.update({
   id: '/app',
   path: '/app',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AppSettingsRoute = AppSettingsImport.update({
+const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => AppRouteRoute,
 } as any)
-
-const AppFriendsRoute = AppFriendsImport.update({
+const AppFriendsRoute = AppFriendsRouteImport.update({
   id: '/friends',
   path: '/friends',
   getParentRoute: () => AppRouteRoute,
 } as any)
-
-const AppWishesIndexRoute = AppWishesIndexImport.update({
+const AppWishesIndexRoute = AppWishesIndexRouteImport.update({
   id: '/wishes/',
   path: '/wishes/',
   getParentRoute: () => AppRouteRoute,
 } as any)
-
-const AppWishesCreateRoute = AppWishesCreateImport.update({
+const AppWishesCreateRoute = AppWishesCreateRouteImport.update({
   id: '/wishes/create',
   path: '/wishes/create',
   getParentRoute: () => AppRouteRoute,
 } as any)
-
-const AppWishesIdIndexRoute = AppWishesIdIndexImport.update({
+const AppWishesIdIndexRoute = AppWishesIdIndexRouteImport.update({
   id: '/wishes/$id/',
   path: '/wishes/$id/',
   getParentRoute: () => AppRouteRoute,
 } as any)
-
-const AppWishesIdUpdateRoute = AppWishesIdUpdateImport.update({
+const AppWishesIdUpdateRoute = AppWishesIdUpdateRouteImport.update({
   id: '/wishes/$id/update',
   path: '/wishes/$id/update',
   getParentRoute: () => AppRouteRoute,
 } as any)
-
-const AppWishesIdEditRoute = AppWishesIdEditImport.update({
+const AppWishesIdEditRoute = AppWishesIdEditRouteImport.update({
   id: '/wishes/$id/edit',
   path: '/wishes/$id/edit',
   getParentRoute: () => AppRouteRoute,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginImport
-      parentRoute: typeof rootRoute
-    }
-    '/logout': {
-      id: '/logout'
-      path: '/logout'
-      fullPath: '/logout'
-      preLoaderRoute: typeof LogoutImport
-      parentRoute: typeof rootRoute
-    }
-    '/registration': {
-      id: '/registration'
-      path: '/registration'
-      fullPath: '/registration'
-      preLoaderRoute: typeof RegistrationImport
-      parentRoute: typeof rootRoute
-    }
-    '/sharelist': {
-      id: '/sharelist'
-      path: '/sharelist'
-      fullPath: '/sharelist'
-      preLoaderRoute: typeof SharelistImport
-      parentRoute: typeof rootRoute
-    }
-    '/app/friends': {
-      id: '/app/friends'
-      path: '/friends'
-      fullPath: '/app/friends'
-      preLoaderRoute: typeof AppFriendsImport
-      parentRoute: typeof AppRouteImport
-    }
-    '/app/settings': {
-      id: '/app/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AppSettingsImport
-      parentRoute: typeof AppRouteImport
-    }
-    '/app/wishes/create': {
-      id: '/app/wishes/create'
-      path: '/wishes/create'
-      fullPath: '/app/wishes/create'
-      preLoaderRoute: typeof AppWishesCreateImport
-      parentRoute: typeof AppRouteImport
-    }
-    '/app/wishes/': {
-      id: '/app/wishes/'
-      path: '/wishes'
-      fullPath: '/app/wishes'
-      preLoaderRoute: typeof AppWishesIndexImport
-      parentRoute: typeof AppRouteImport
-    }
-    '/app/wishes/$id/edit': {
-      id: '/app/wishes/$id/edit'
-      path: '/wishes/$id/edit'
-      fullPath: '/app/wishes/$id/edit'
-      preLoaderRoute: typeof AppWishesIdEditImport
-      parentRoute: typeof AppRouteImport
-    }
-    '/app/wishes/$id/update': {
-      id: '/app/wishes/$id/update'
-      path: '/wishes/$id/update'
-      fullPath: '/app/wishes/$id/update'
-      preLoaderRoute: typeof AppWishesIdUpdateImport
-      parentRoute: typeof AppRouteImport
-    }
-    '/app/wishes/$id/': {
-      id: '/app/wishes/$id/'
-      path: '/wishes/$id'
-      fullPath: '/app/wishes/$id'
-      preLoaderRoute: typeof AppWishesIdIndexImport
-      parentRoute: typeof AppRouteImport
-    }
-  }
-}
-
-// Create and export the route tree
-
-interface AppRouteRouteChildren {
-  AppFriendsRoute: typeof AppFriendsRoute
-  AppSettingsRoute: typeof AppSettingsRoute
-  AppWishesCreateRoute: typeof AppWishesCreateRoute
-  AppWishesIndexRoute: typeof AppWishesIndexRoute
-  AppWishesIdEditRoute: typeof AppWishesIdEditRoute
-  AppWishesIdUpdateRoute: typeof AppWishesIdUpdateRoute
-  AppWishesIdIndexRoute: typeof AppWishesIdIndexRoute
-}
-
-const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppFriendsRoute: AppFriendsRoute,
-  AppSettingsRoute: AppSettingsRoute,
-  AppWishesCreateRoute: AppWishesCreateRoute,
-  AppWishesIndexRoute: AppWishesIndexRoute,
-  AppWishesIdEditRoute: AppWishesIdEditRoute,
-  AppWishesIdUpdateRoute: AppWishesIdUpdateRoute,
-  AppWishesIdIndexRoute: AppWishesIdIndexRoute,
-}
-
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
-  AppRouteRouteChildren,
-)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -244,7 +104,6 @@ export interface FileRoutesByFullPath {
   '/app/wishes/$id/update': typeof AppWishesIdUpdateRoute
   '/app/wishes/$id': typeof AppWishesIdIndexRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
@@ -260,9 +119,8 @@ export interface FileRoutesByTo {
   '/app/wishes/$id/update': typeof AppWishesIdUpdateRoute
   '/app/wishes/$id': typeof AppWishesIdIndexRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRoute
@@ -277,7 +135,6 @@ export interface FileRoutesById {
   '/app/wishes/$id/update': typeof AppWishesIdUpdateRoute
   '/app/wishes/$id/': typeof AppWishesIdIndexRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -326,7 +183,6 @@ export interface FileRouteTypes {
     | '/app/wishes/$id/'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRouteRoute: typeof AppRouteRouteWithChildren
@@ -336,6 +192,126 @@ export interface RootRouteChildren {
   SharelistRoute: typeof SharelistRoute
 }
 
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/sharelist': {
+      id: '/sharelist'
+      path: '/sharelist'
+      fullPath: '/sharelist'
+      preLoaderRoute: typeof SharelistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registration': {
+      id: '/registration'
+      path: '/registration'
+      fullPath: '/registration'
+      preLoaderRoute: typeof RegistrationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/friends': {
+      id: '/app/friends'
+      path: '/friends'
+      fullPath: '/app/friends'
+      preLoaderRoute: typeof AppFriendsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/wishes/': {
+      id: '/app/wishes/'
+      path: '/wishes'
+      fullPath: '/app/wishes'
+      preLoaderRoute: typeof AppWishesIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/wishes/create': {
+      id: '/app/wishes/create'
+      path: '/wishes/create'
+      fullPath: '/app/wishes/create'
+      preLoaderRoute: typeof AppWishesCreateRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/wishes/$id/': {
+      id: '/app/wishes/$id/'
+      path: '/wishes/$id'
+      fullPath: '/app/wishes/$id'
+      preLoaderRoute: typeof AppWishesIdIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/wishes/$id/update': {
+      id: '/app/wishes/$id/update'
+      path: '/wishes/$id/update'
+      fullPath: '/app/wishes/$id/update'
+      preLoaderRoute: typeof AppWishesIdUpdateRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/wishes/$id/edit': {
+      id: '/app/wishes/$id/edit'
+      path: '/wishes/$id/edit'
+      fullPath: '/app/wishes/$id/edit'
+      preLoaderRoute: typeof AppWishesIdEditRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+  }
+}
+
+interface AppRouteRouteChildren {
+  AppFriendsRoute: typeof AppFriendsRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppWishesCreateRoute: typeof AppWishesCreateRoute
+  AppWishesIndexRoute: typeof AppWishesIndexRoute
+  AppWishesIdEditRoute: typeof AppWishesIdEditRoute
+  AppWishesIdUpdateRoute: typeof AppWishesIdUpdateRoute
+  AppWishesIdIndexRoute: typeof AppWishesIdIndexRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppFriendsRoute: AppFriendsRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppWishesCreateRoute: AppWishesCreateRoute,
+  AppWishesIndexRoute: AppWishesIndexRoute,
+  AppWishesIdEditRoute: AppWishesIdEditRoute,
+  AppWishesIdUpdateRoute: AppWishesIdUpdateRoute,
+  AppWishesIdIndexRoute: AppWishesIdIndexRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRouteRoute: AppRouteRouteWithChildren,
@@ -344,80 +320,6 @@ const rootRouteChildren: RootRouteChildren = {
   RegistrationRoute: RegistrationRoute,
   SharelistRoute: SharelistRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/app",
-        "/login",
-        "/logout",
-        "/registration",
-        "/sharelist"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/app": {
-      "filePath": "app/route.tsx",
-      "children": [
-        "/app/friends",
-        "/app/settings",
-        "/app/wishes/create",
-        "/app/wishes/",
-        "/app/wishes/$id/edit",
-        "/app/wishes/$id/update",
-        "/app/wishes/$id/"
-      ]
-    },
-    "/login": {
-      "filePath": "login.tsx"
-    },
-    "/logout": {
-      "filePath": "logout.tsx"
-    },
-    "/registration": {
-      "filePath": "registration.tsx"
-    },
-    "/sharelist": {
-      "filePath": "sharelist.tsx"
-    },
-    "/app/friends": {
-      "filePath": "app/friends.tsx",
-      "parent": "/app"
-    },
-    "/app/settings": {
-      "filePath": "app/settings.tsx",
-      "parent": "/app"
-    },
-    "/app/wishes/create": {
-      "filePath": "app/wishes/create.tsx",
-      "parent": "/app"
-    },
-    "/app/wishes/": {
-      "filePath": "app/wishes/index.tsx",
-      "parent": "/app"
-    },
-    "/app/wishes/$id/edit": {
-      "filePath": "app/wishes/$id/edit.tsx",
-      "parent": "/app"
-    },
-    "/app/wishes/$id/update": {
-      "filePath": "app/wishes/$id/update.tsx",
-      "parent": "/app"
-    },
-    "/app/wishes/$id/": {
-      "filePath": "app/wishes/$id/index.tsx",
-      "parent": "/app"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

@@ -6,9 +6,6 @@
 vendor/
 bin/
 
-# Go workspace file
-go.work
-
 # IDE specific files
 .idea/
 .vscode/

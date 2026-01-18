@@ -1,0 +1,9 @@
+go 1.25.6
+
+use (
+    ./shared
+    ./apps/auth
+    ./apps/filer
+    ./apps/gateway
+    ./apps/wishlister
+)

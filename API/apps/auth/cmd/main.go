@@ -10,7 +10,7 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/server"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/service"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/storage"
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/logger"
+	"github.com/AmadoMuerte/BirthdayWish/API/shared/pkg/logger"
 )
 
 func main() {

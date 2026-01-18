@@ -50,10 +50,10 @@ metrics:
 run-all:
 	concurrently --prefix-colors "blue,green,red,yellow" \
   	--names "GATEWAY,WISHLISTER,FILER,AUTH" \
-  	"cd apps/gateway && go run cmd/main.go" \
-  	"cd apps/wishlister && go run cmd/main.go" \
-  	"cd apps/filer && go run cmd/main.go" \
-  	"cd apps/auth && go run cmd/main.go"
+  	"go run apps/gateway/cmd/main.go" \
+  	"go run apps/wishlister/cmd/main.go" \
+  	"go run apps/filer/cmd/main.go" \
+  	"go run apps/auth/cmd/main.go"
 
 run-filer:
 	cd apps/filer && go run cmd/main.go

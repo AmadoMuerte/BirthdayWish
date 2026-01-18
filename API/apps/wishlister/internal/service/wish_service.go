@@ -8,7 +8,7 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/client"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/models"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/storage"
-	wishProto "github.com/AmadoMuerte/BirthdayWish/API/proto/wish"
+	wishProto "github.com/AmadoMuerte/BirthdayWish/API/shared/proto/wish"
 	"github.com/google/uuid"
 )
 

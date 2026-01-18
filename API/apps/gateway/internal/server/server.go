@@ -10,6 +10,7 @@ import (
 
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/client"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/config"
+	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/docs"
 	api "github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/gen"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/handlers"
 	"github.com/go-chi/chi/v5"
@@ -94,7 +95,7 @@ func (s *Server) createRouter() http.Handler {
 
 	if *s.runMode != "production" {
 		router.Handle("/metrics", promhttp.Handler())
-		router.Mount("/docs", s.redocRoutes())
+		router.Mount("/docs", docs.RedocRoutes())
 		s.log.Info("Redoc documentation available",
 			"address", s.cfg.App.Address,
 			"port", s.cfg.App.Port,

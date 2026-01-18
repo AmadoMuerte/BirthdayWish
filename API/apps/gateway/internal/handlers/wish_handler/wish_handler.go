@@ -11,7 +11,7 @@ import (
 	gen "github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/gen"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/jwt"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/gateway/internal/response"
-	wishProto "github.com/AmadoMuerte/BirthdayWish/API/proto/wish"
+	wishProto "github.com/AmadoMuerte/BirthdayWish/API/shared/proto/wish"
 	"github.com/google/uuid"
 )
 

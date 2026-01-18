@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	filerProto "github.com/AmadoMuerte/BirthdayWish/API/proto/filer"
+	filerProto "github.com/AmadoMuerte/BirthdayWish/API/shared/proto/filer"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

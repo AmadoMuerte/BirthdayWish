@@ -12,7 +12,7 @@ import (
 
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/storage"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/filer/internal/util"
-	filerProto "github.com/AmadoMuerte/BirthdayWish/API/proto/filer"
+	filerProto "github.com/AmadoMuerte/BirthdayWish/API/shared/proto/filer"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 )

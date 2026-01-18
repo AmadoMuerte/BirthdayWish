@@ -13,7 +13,7 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/config"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/service"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/auth/internal/storage"
-	authProto "github.com/AmadoMuerte/BirthdayWish/API/proto/auth"
+	authProto "github.com/AmadoMuerte/BirthdayWish/API/shared/proto/auth"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"google.golang.org/grpc"

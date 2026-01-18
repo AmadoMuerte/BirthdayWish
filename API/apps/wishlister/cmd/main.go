@@ -11,7 +11,7 @@ import (
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/server"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/service"
 	"github.com/AmadoMuerte/BirthdayWish/API/apps/wishlister/internal/storage"
-	"github.com/AmadoMuerte/BirthdayWish/API/pkg/logger"
+	"github.com/AmadoMuerte/BirthdayWish/API/shared/pkg/logger"
 )
 
 func main() {
