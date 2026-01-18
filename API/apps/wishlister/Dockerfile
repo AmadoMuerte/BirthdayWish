@@ -4,13 +4,10 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-COPY apps/wishlister/internal/storage/migrations ./apps/wishlister/internal/storage/migrations
-COPY .env ./.env
 
 RUN go build -o /bin/wishlister ./apps/wishlister/cmd/
 
 FROM alpine:3.18
-RUN apk add --no-cache ca-certificates libc6-compat
 
 RUN adduser -D -u 1000 app
 RUN mkdir -p /app && chown app:app /app
