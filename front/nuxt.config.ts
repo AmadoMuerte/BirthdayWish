@@ -1,6 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { fileURLToPath } from 'node:url'
+
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+
+  srcDir: 'src/',
+  alias: {
+    '@': fileURLToPath(new URL('./src', import.meta.url)),
+  },
+
+  dir: {
+    pages:   'app/routes',
+    layouts: 'app/layouts',
+    app: 'app',
+  },
+
+  css: ['@/shared/styles/index.scss'],
 })
- 

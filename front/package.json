@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@tabler/icons-vue": "^3.36.1",
     "class-variance-authority": "^0.7.1",
     "nuxt": "^4.2.2",
     "reka-ui": "^2.7.0",
