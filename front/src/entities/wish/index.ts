@@ -1,0 +1,1 @@
+export { default as WishCard } from './ui/WishCard.vue'
