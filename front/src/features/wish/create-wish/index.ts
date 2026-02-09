@@ -1,0 +1,1 @@
+export { default as CreateWishButton } from './ui/CreateWishButton.vue'
